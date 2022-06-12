@@ -1,10 +1,9 @@
 import { useState } from 'react';
+import {useAuth} from '../Context/AuthContext'
 import styled from 'styled-components'
 import { ChatPage,ChatList, Firstchat } from '.'
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton'
-import {ButtonGroup} from 'react-bootstrap';
-import {useAuth} from '../Context/AuthContext'
+import {ButtonGroup,DropdownButton,Dropdown} from 'react-bootstrap';
+import Default_Profile_Img from '../Components/Default_Profile_Img.png'
 
 const Main = () => {
   const [showchats, setShowChats] = useState(true)
@@ -16,33 +15,38 @@ const Main = () => {
     setShowChats(false)
     setaddclass(true)
   }
-
-
-  
-  const { currentUser } = useAuth()
+// //////////////////////////////////////////////////////////// login
+  const { currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser } = useAuth()
   const [error, setError] = useState("")
-
-  
-  // const history = useNavigate()
-  // const { login,googleSignIn } = useAuth()
-  // const [error, setError] = useState("")
-  // const [loading, setLoading] = useState(false)
-  // const handleGoogleSignIn = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     await googleSignIn();
-  //     history("/");
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  // };
+  const {googleSignIn} = useAuth()
+  const handleGoogleSignIn = async (e) => {
+    e.preventDefault();
+    try {
+      await googleSignIn();
+    } catch (err) {
+      console.log(err.message);
+      setError(err.message)
+      alert(error)
+    }
+  };
+   async function handleLogout() {
+    setError("")
+    try {
+      await logout()
+      window.location.reload(true);
+    } catch (err) {
+      console.log(err.message);
+      setError(err.message);
+      alert(error)
+    }
+  }
+///////////////////////////////////////////////////////////////////// login
   return (
     <MainContainer>
       <span className='top'></span>
       <div  className="chatbox container-fluid bg-white shadow-lg rounded">
         <div className="row h-100">
           <div id='side-1'
-          //  className="col-md-4 pr-0 d-none d-md-block"
           className={addclass?'col-md-4 pr-0 d-none d-md-block':'col-md-4 pr-0'}
           >
             <div className="card">
@@ -51,58 +55,53 @@ const Main = () => {
                   <div className="col-1 col-sm-1 col-md-1 d-md-none">
                     <i onClick={()=>setaddclass(true)} className="fa fa-arrow-left mt-2" style={{fontSize:'20px',cursor:'pointer'}}></i>
                   </div>
-                  <div className="col-9 col-sm-9 col-md-9">
+                  <div className="col-9 col-sm-9 col-md-10">
                     <div className="d-flex">
                       <img className='profile-pic rounded-circle'
                       id='Profile_Img'
-                      src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                      src={
+                        currentActiveUser? currentUser.photoURL:Default_Profile_Img
+                      }
                       alt="profile img" title='no'/>
-                      <p className='my-auto mx-3' id='Profile_Name'>Name</p>
+                      <p className='my-auto mx-3' id='Profile_Name'>
+                        {currentActiveUser? currentUser.displayName:''}
+                      </p>
                       </div>
                   </div>                        
-                  <div className="col-2 col-sm-2 col-md-2">
-                  
-                    <div className="dropleft">
-                      <span className="dropdown-toggle" data-toggle="dropdown">
-                        <i className="fas fa-ellipsis-v icon" onClick={()=>setaddclass(true)} style={{cursor:'pointer',float:'right '}}></i>
-                        <DropdownButton
-                    // as={ButtonGroup}
-                    key={'start'}
-                    id={'dropdown-toggle-drop-start bg-transparent'}
-                    drop={'start'}
-                    variant="light"
-                    title={''}
-                  >
-                  <Dropdown.Item eventKey="1">Action</Dropdown.Item>
-                  <Dropdown.Item eventKey="2">Another action</Dropdown.Item>
-                  <Dropdown.Item eventKey="3">Something else here</Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Item eventKey="4">Separated link</Dropdown.Item>
-                  </DropdownButton>
-                      </span>
-                      <div className="dropdown-menu">
-                        <a href="#" id='linkSign' className="dropdown-item">Sign In</a>
-                        <a href="#" id='linkSignOut' className="dropdown-item">Sign Out</a>
-                      </div>
-                    </div>
+                  <div style={{float:'right'}} className="col-2 col-sm-2 col-md-2 m-0 p-0">
+                    <DropdownButton
+                            as={ButtonGroup}
+                            key={'start'}
+                            id={'dropdown-toggle-drop-start bg-transparent '}
+                            drop={'start'}
+                            variant="light"
+                            title={
+                                    <span>
+                                      <i className="fas fa-ellipsis-v icon" style={{cursor:'pointer',float:'right '}}></i>
+                                    </span>
+                                  }
+                            >
+                      <Dropdown.Item className={ShowSignOut?'d-block':'d-none'} eventKey="1">New Chat</Dropdown.Item>
+                      <Dropdown.Item className={!ShowSignOut?'d-block':'d-none'} onClick={handleGoogleSignIn} id='linkSignIn' style={{display:{ShowSignIn}}} eventKey="2">Sign In</Dropdown.Item>
+                      <Dropdown.Item id='linkSignOut' eventKey="3">Something else here</Dropdown.Item>
+                      <Dropdown.Divider
+                      className={ShowSignOut?'d-block':'d-none'}
+                      />
+                      <Dropdown.Item onClick={handleLogout} className={ShowSignOut?'d-block':'d-none'}  style={{display:{ShowSignOut}}} eventKey="4">Sign Out</Dropdown.Item>
+                    </DropdownButton>  
                   </div>
                 </div>
               </div>
               </div>
             <ChatList Show={Show} />
-
           </div>
-      
           <div className={addclass?'col-md-8 pl-0':'col-md-8 pl-0 d-none'}
-          // className="col-md-8 pl-0"
            id='side-2'>
           {
-            showchats ? <Firstchat currentUser={currentUser}  AddClass={AddClass} />:<ChatPage AddClass={AddClass} Show={Show} setShowChats={setShowChats}/>
+            showchats ? <Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />
+            :<ChatPage AddClass={AddClass} Show={Show} setShowChats={setShowChats}/>
           } 
           </div>
-          {/* <div className="mx-auto my-3 ">
-            <button  onClick={handleGoogleSignIn}>Signin</button>
-          </div> */}
       </div>
       </div>
       
@@ -162,10 +161,11 @@ const MainContainer = styled.div`
     .dropstart .dropdown-toggle::before{
       display: none !important;
     }
-    .show>.btn-light.dropdown-toggle {
+  .show>.btn-light.dropdown-toggle {
     background-color: #ffffff00 !important;
     border-color: #ffffff00 !important;
     border: none !important;
+    padding-left: 0px;
 
 }
 .btn-light {
@@ -173,7 +173,9 @@ const MainContainer = styled.div`
     background-color: #ffffff00 !important;
     border-color: #ffffff00 !important;
     border: none !important;
-}
+    padding-left: 0px;
+
+} 
 `
 
 export default Main

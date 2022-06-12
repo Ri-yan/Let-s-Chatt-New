@@ -1,13 +1,19 @@
 import { useContext, useState, useEffect,createContext } from "react"
 import { auth } from "../firebase"
 import {GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "firebase/auth";
+import { FirebaseError } from "firebase/app";
+import { faDatabase } from "@fortawesome/free-solid-svg-icons";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 
   const [currentUser, setCurrentUser] = useState('')
+  const [currentActiveUser, setCurrentActiveUser] = useState(false)
+
   const [loading, setLoading] = useState(true)
+  const [ShowSignIn, setShowSignIn] = useState('none')
+  const [ShowSignOut, setShowSignOut] = useState(false)
 
   function logout() {
     return signOut(auth)
@@ -23,12 +29,27 @@ export function AuthProvider({ children }) {
   }
   const onStateChange=(user)=>{
     if(user){
-      // alert(user.displayName)
-     document.getElementById("Profile_Img").src = user.photoURL
-     document.getElementById("Profile_Img").title = user.displayName
-     document.getElementById("Profile_Name").innerHTML = `${user.displayName}`
-    }    
+    //   let userprofile ={ email:'',name:'',photoURL:''}
+    //   userprofile.email=currentUser.email
+    //   userprofile.name=currentUser.displayName
+    //   userprofile.photoURL=currentUser.photoURL
+    //  faDatabase().ref('users').push(userprofile,callback())
+     setShowSignIn('none')
+     setShowSignOut(true)
+     setCurrentActiveUser(true)
+    } 
+    else {
+     setShowSignIn('block')
+     setShowSignOut(false)
+     setCurrentActiveUser(false)
+    }   
   }
+ const callback=()=>{
+  //  if(error){
+  //    alert(error)
+  //  }
+ }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth,(user) => {
       setCurrentUser(user)
@@ -41,7 +62,10 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     logout,
-    googleSignIn
+    googleSignIn,
+    ShowSignIn,
+    ShowSignOut,
+    currentActiveUser
   }
 
   return (
