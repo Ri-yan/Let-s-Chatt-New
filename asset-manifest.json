@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/Ri-yan/Let-s-Chatt-New/static/css/main.e099462a.css",
-    "main.js": "/Ri-yan/Let-s-Chatt-New/static/js/main.b7cff737.js",
-    "static/js/787.96a5e555.chunk.js": "/Ri-yan/Let-s-Chatt-New/static/js/787.96a5e555.chunk.js",
-    "static/media/Default_Profile_Img.png": "/Ri-yan/Let-s-Chatt-New/static/media/Default_Profile_Img.7a6a6c54279a54d1977c.png",
-    "index.html": "/Ri-yan/Let-s-Chatt-New/index.html",
-    "main.e099462a.css.map": "/Ri-yan/Let-s-Chatt-New/static/css/main.e099462a.css.map",
-    "main.b7cff737.js.map": "/Ri-yan/Let-s-Chatt-New/static/js/main.b7cff737.js.map",
-    "787.96a5e555.chunk.js.map": "/Ri-yan/Let-s-Chatt-New/static/js/787.96a5e555.chunk.js.map"
+    "main.css": "/Let-s-Chatt-New/static/css/main.e099462a.css",
+    "main.js": "/Let-s-Chatt-New/static/js/main.7db1e0d8.js",
+    "static/js/787.96a5e555.chunk.js": "/Let-s-Chatt-New/static/js/787.96a5e555.chunk.js",
+    "static/media/Default_Profile_Img.png": "/Let-s-Chatt-New/static/media/Default_Profile_Img.7a6a6c54279a54d1977c.png",
+    "index.html": "/Let-s-Chatt-New/index.html",
+    "main.e099462a.css.map": "/Let-s-Chatt-New/static/css/main.e099462a.css.map",
+    "main.7db1e0d8.js.map": "/Let-s-Chatt-New/static/js/main.7db1e0d8.js.map",
+    "787.96a5e555.chunk.js.map": "/Let-s-Chatt-New/static/js/787.96a5e555.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e099462a.css",
-    "static/js/main.b7cff737.js"
+    "static/js/main.7db1e0d8.js"
   ]
 }
