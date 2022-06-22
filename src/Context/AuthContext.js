@@ -1,15 +1,15 @@
-import { useContext, useState, useEffect,createContext } from "react"
-import { auth } from "../firebase"
-import {GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "firebase/auth";
-import { FirebaseError } from "firebase/app";
-import { faDatabase } from "@fortawesome/free-solid-svg-icons";
+import { useContext, useState, useEffect,createContext,useRef } from "react"
+import { auth,db } from "../firebase"
+import { addDoc, collection,getDocs } from "firebase/firestore";
+
+import { GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut } from "firebase/auth";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 
   const [currentUser, setCurrentUser] = useState('')
-  const [currentActiveUser, setCurrentActiveUser] = useState(false)
+  const [currentActiveUser, setCurrentActiveUser] = useState('')
 
   const [loading, setLoading] = useState(true)
   const [ShowSignIn, setShowSignIn] = useState('none')
@@ -27,13 +27,38 @@ export function AuthProvider({ children }) {
   const onfirebaseStateChange=()=>{
     onAuthStateChanged(auth,onStateChange)
   }
-  const onStateChange=(user)=>{
+  
+ const onStateChange= async (user)=>{
+
+    const userRef=collection(db, 'users')
+    let userprofile={
+      email:"",
+      name:"",
+      photoURL:""
+     }
     if(user){
-    //   let userprofile ={ email:'',name:'',photoURL:''}
-    //   userprofile.email=currentUser.email
-    //   userprofile.name=currentUser.displayName
-    //   userprofile.photoURL=currentUser.photoURL
-    //  faDatabase().ref('users').push(userprofile,callback())
+      userprofile.email=user.email
+      userprofile.name=user.displayName
+      userprofile.photoURL=user.photoURL
+      let f=0
+      await getDocs(userRef)
+      .then((snaphot)=>{
+        snaphot.docs.forEach((doc)=>{
+          if(doc.data().email===userprofile.email){
+            f++
+          }
+        })
+      })
+      .catch(err=>{
+        console.log(err.message)
+      })
+      if(f!==0){
+        console.log(' User already exist')
+      }
+      else{
+        addDoc(userRef,userprofile)
+        console.log('user Added')
+      }
      setShowSignIn('none')
      setShowSignOut(true)
      setCurrentActiveUser(true)
@@ -44,20 +69,22 @@ export function AuthProvider({ children }) {
      setCurrentActiveUser(false)
     }   
   }
- const callback=()=>{
-  //  if(error){
-  //    alert(error)
-  //  }
- }
 
+// solution to useeffect twice running
+  const shouldLog = useRef(true)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth,(user) => {
-      setCurrentUser(user)
-      onfirebaseStateChange(user)
-      setLoading(false)
+    if(shouldLog.current){
+      shouldLog.current=false;
+      onfirebaseStateChange()
+      const unsubscribe = onAuthStateChanged(auth,(user) => {
+        setCurrentUser(user)
+        // onStateChange(user)
+        setLoading(false)
+        // onfirebaseStateChange()
     })
-    return ()=> {unsubscribe();}
-  }, [])
+    return ()=>unsubscribe
+    
+  }}, [])
 
   const value = {
     currentUser,

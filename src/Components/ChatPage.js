@@ -1,4 +1,4 @@
-import { useState } from 'react'
+// import { useState } from 'react'
 import styled from 'styled-components'
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 
@@ -21,8 +21,7 @@ const Recieve=()=>{
   )
 }
 const Sent=({message})=>{
-  const m='This message from reciver'+'This message from reciver'+'This message from reciver'
-  +'This message from reciver'
+  const m='This message from reciver This message from reciver This message from reciver This message from reciver'
   return(
     <div className="row justify-content-end">
           <div className="col-7 col-sm-7 col-sm-7 ">
@@ -39,7 +38,7 @@ const Sent=({message})=>{
   )
 }
 const ChatPage = ({setShowChats,Show,AddClass}) => {
-const [sentMessage, setSentMessage] = useState('')
+// const [sentMessage, setSentMessage] = useState('')
 
 const onKeyDown=(e)=>{
     e.target.addEventListener('keydown',(key)=>{
@@ -49,7 +48,7 @@ const onKeyDown=(e)=>{
     })
   }
   const SendMessage=(e)=>{
-      var message=''+`<div className="row justify-content-end">
+      var message=`<div className="row justify-content-end">
                     <div className="col-7 col-sm-7 col-sm-7 ">
                       <p className='sent float-right'>          
                         ${document.getElementById('txtMessage').value}
@@ -105,7 +104,7 @@ const onKeyDown=(e)=>{
         <Sent/>
         <Recieve/>
         <Sent/>
-        {MM.map(id =>{<Sent key={id} id={id}  />})}
+        {MM.map(id =>{ return <Sent key={id} id={id}  />})}
       </div>
 
       <div className="card-footer">
@@ -176,6 +175,7 @@ const Chatpage = styled.div`
   }
   .card{
     height: 94vh;
+    /* height: calc(100% - 40px); */
     overflow-y: scroll;
 
   }
