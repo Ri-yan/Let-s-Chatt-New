@@ -69,6 +69,26 @@ export function AuthProvider({ children }) {
      setCurrentActiveUser(false)
     }   
   }
+  const [friendsLoading, setfriendsLoading] = useState(true)
+  const [friendlist,setFriendList]=useState([])
+  const fetchFriendList = async ()=>{
+      const userRef=collection(db, 'users')
+      await getDocs(userRef)
+      .then((snaphot)=>{
+        snaphot.docs.map((doc)=>{
+          if(doc.data().email!==currentUser.email)
+          friendlist.push(doc.data())
+          return 0
+          // setFriendList([...friendlist,doc.data()])
+          // console.log(doc.data())
+        })
+        setfriendsLoading(false)
+        // console.log(friendlist)
+      })
+      .catch(err=>{
+        console.log(err.message)
+      })
+}
 
 // solution to useeffect twice running
   const shouldLog = useRef(true)
@@ -82,8 +102,8 @@ export function AuthProvider({ children }) {
         setLoading(false)
         // onfirebaseStateChange()
     })
-    return ()=>unsubscribe
-    
+    return ()=>unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }}, [])
 
   const value = {
@@ -92,7 +112,7 @@ export function AuthProvider({ children }) {
     googleSignIn,
     ShowSignIn,
     ShowSignOut,
-    currentActiveUser
+    currentActiveUser,friendlist,setFriendList,fetchFriendList,friendsLoading,setfriendsLoading
   }
 
   return (
