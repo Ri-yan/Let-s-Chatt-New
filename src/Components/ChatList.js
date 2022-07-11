@@ -1,12 +1,16 @@
-import React from 'react'
-const ChatHead=({Show,Name,last_message})=>{
+import {useEffect,useState,useRef} from 'react'
+import { doc, onSnapshot ,collection} from "firebase/firestore";
+import { auth,db } from "../firebase"
+const ChatHead=({Show,Name,last_message,friendKey,friendName,friendImage})=>{
   return(
-    <li  onClick={Show} className="list-group-item list-group-item-action">
+    <li  onClick={()=>Show(`${friendKey}`,`${friendName}`,`${friendImage}`)} className="list-group-item list-group-item-action">
         <div className="row">
-          <div className="col-md-2">
-            <img className='friend-pic' src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="profile img" />
+          <div className="col-3 col-md-3 col-sm-2 mx-2">
+            <img className='friend-pic rounded-circle ' src={friendImage} alt="profile img" />
           </div>
-          <div className="col-md-10">
+          <div className="col-7 col-md-7 col-sm-8 p-start-3 "
+          //  style={{paddingLeft:'40px'}}
+           >
             <div className="name">{Name}</div>
             <div className="under-name">{last_message}</div>
           </div>
@@ -14,22 +18,60 @@ const ChatHead=({Show,Name,last_message})=>{
       </li>
   )
 }
-const ChatList = ({Show}) => {
+const ChatList = ({currentUser,LoadFriendList,CurrentUserID,Show,friendsLoad,chatHeads}) => {
+  // useEffect(() => {
+  //   const unsub=()=>{if(currentUser)LoadFriendList(currentUser.uid)}
+  //   return () => unsub();
+  // }, [chatHeads,currentUser])
+  const [Chats, setChats] = useState([])
+  const [Fload, setFload] = useState(true)
+
+  const shouldLog = useRef(true)
+
+// useEffect(() => {
+//   if(shouldLog.current){
+//     shouldLog.current=false;
+//   const FRef =collection(doc(db, "friendList",`${currentUser.uid}`),'UserFriends')
+//   const unsub = onSnapshot(FRef, (snapshots) => {
+//     const newFriend=[] 
+//     snapshots.docs.forEach((id)=>{
+//       newFriend.push(id.data());
+//       // console.log("Current data: ", id.data());
+//     })
+//     setChats(...Chats,newFriend);
+//     setFload(false);
+// });
+//   return () => unsub;
+// }}, [])
+
+
+  
+
+
+
+
+
   return (
-    <ul className="list-group list-group-flush ">
-      {/* search box */}
+    <ul className="list-group list-group-flush" style={{height:'84vh',overflowY:'scroll'}}>
       <li  className="list-group-item" style={{background: '#f8f8f8'}}>
         <input type="search" name="Search" id="" className='form-control form-rounded' />
       </li>
-      
-      {/* chat heads */}
-      <ChatHead Show={Show} Name={'John Dove'} last_message={'See you soon'}/>
-      <ChatHead Show={Show} Name={'Riyan'} last_message={'Some messages'}/>
-      <ChatHead Show={Show} Name={'Eleven'} last_message={'Some messages'}/>
-      <ChatHead Show={Show} Name={'Steven'} last_message={'Some messages'}/>
-      <ChatHead Show={Show} Name={'User name'} last_message={'Some messages'}/>
-      <ChatHead Show={Show} Name={'User Name'} last_message={'Some messages'}/>
-      
+        {
+          friendsLoad?
+          <div className="text-center "style={{width:'100%',height:'50vh'}}>
+            <span className="spinner-border text-primary mt-5" style={{width:'3rem',height:'3rem'}}></span>
+          </div>
+          :(chatHeads.length!==0)?
+          chatHeads.map((id,key)=>{
+            return (
+              <ChatHead friendKey={id.friendId} friendName={id.friendName} friendImage={id.photoURL}
+              key={key} Show={Show} Name={id.friendName} last_message={'See you soon'}/>
+              )
+        }):<div className='text-center' style={{ fontSize: '10px',
+          color: '#9CA1A3 ',
+          marginTop: '2%',
+          marginLeft:'2%'}}>no active chats</div>
+        }
     </ul>
   )
 }

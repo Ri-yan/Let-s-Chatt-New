@@ -1,126 +1,166 @@
-// import { useState } from 'react'
+import { useState ,useEffect,useRef} from 'react'
 import styled from 'styled-components'
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+// import { auth,db } from "../firebase"
+// import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
+import {useAuth} from '../Context/AuthContext'
+import { auth,db } from "../firebase"
+import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
 
-const Recieve=()=>{
+
+const Recieve=({messageText,time,img})=>{
   return(
     <div className="row">
           <div className="col-2 col-sm-1 col-md-1">
-            <img className='chat-pic' src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="profile img" />
-            
+            <img className='chat-pic rounded-circle' src={img} alt="profile img" />
           </div>
           <div className="col-7 col-sm-7 col-sm-7">
-              <p className='recieve'>This message from reciver
-              This message from reciver
-              This message from reciver
-              This message from reciver
+              <p className='recieve'>
+                {messageText}
               </p>
-              <span className='time float-right'>9:15 PM</span>
+              <span className='time float-right'>{time}</span>
             </div>
         </div>
   )
 }
-const Sent=({message})=>{
-  const m='This message from reciver This message from reciver This message from reciver This message from reciver'
+const Sent=({messageText,time,img})=>{
   return(
-    <div className="row justify-content-end">
+      <div className="row justify-content-end">
           <div className="col-7 col-sm-7 col-sm-7 ">
-              <p className='sent float-right'>
-              {m}
-              {message}
+              <p className='sent float-end'>
+              {messageText}
               </p>
-              <span className='time float-right'>9:15 PM</span>
+              <span className='time-sent float-end align-bottom m-end-2'>{time}</span>
             </div>
             <div className="col-2 col-sm-1 col-md-1">
-            <img className='chat-pic' src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="profile img" />
+            <img className='chat-pic rounded-circle' src={img} alt="profile img" />
           </div>
         </div>
+
+
+
+
+
+
   )
 }
-const ChatPage = ({setShowChats,Show,AddClass}) => {
-// const [sentMessage, setSentMessage] = useState('')
+const ChatPage = ({LoadChatMessages,CurrentMessageID,MessageSend,Messages,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
+const scrollRef = useRef();
+  const [sentMessage, setSentMessage] = useState('');
+  const [sendButton, setsendButton] = useState(false);
+const{LoadChat}= useAuth()
+const onSub=async(e)=>{
+    e.preventDefault()
+    let message ={
+        messageText:sentMessage,
+        time:new Date().toLocaleString()
+    }
+    if(sentMessage!==''){
+    await MessageSend(sentMessage,message.time)
+    document.getElementById('txtMessage').value='';
+    setSentMessage('');
+    setsendButton(false);
+    }
+    if(document.getElementById('txtMessage').value==='')
+    setsendButton(false);
 
-const onKeyDown=(e)=>{
-    e.target.addEventListener('keydown',(key)=>{
-      if(key.which ===13){
-        SendMessage();
-      }
+}
+// useEffect(() => {
+//   if(document.getElementById('txtMessage').value==='')
+//     setsendButton(false);
+//     else
+//     setsendButton(true);
+//     scrollRef.current?.scrollIntoView({behaviour:"smooth"});
+// }, [Messages])
+const shouldLog = useRef(true)
+
+const [Me, setMe] = useState([]);
+useEffect(() => {
+  if(shouldLog.current){
+    shouldLog.current=false;
+    console.log('currentFriend',currentFriend.messageID)
+  // const messageRef =query(collection(doc(db,"MessageList",`${currentUser.uid+currentFriend.UserID}`),'messages'),orderBy('time'))
+  const unsub=()=>onSnapshot(query(collection(doc(db,"MessageList",`${currentUser.uid+currentFriend.UserID}`),'messages'),orderBy('time')), (snapshots) => {  
+    const M=[];
+    snapshots.docs.forEach((user)=>{
+      console.log('Helllllloo',`${currentUser.uid+ActiveChatIdN}`)
+      console.log(user.data());
+      M.push(user.data());
+      })
+      // setMessages(M);
+      setMe(M);
+      scrollRef.current?.scrollIntoView({behaviour:"smooth"});
     })
-  }
-  const SendMessage=(e)=>{
-      var message=`<div className="row justify-content-end">
-                    <div className="col-7 col-sm-7 col-sm-7 ">
-                      <p className='sent float-right'>          
-                        ${document.getElementById('txtMessage').value}
-                     </p>
-                     <span className='time float-right'>9:15 PM</span>
-                    </div>
-                    <div className="col-2 col-sm-1 col-md-1">
-                      <img style={{height:'30px',width:'30px'}} className='chat-pic' src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="profile img" />
-                    </div>
-                  </div>`;
-    document.getElementById('Messages').innerHTML+= message;
-    document.getElementById('txtMessage').value=''
-    document.getElementById('txtMessage').focus();
+  return () => unsub();
+}}, [])
 
-    document.getElementById('Messages').scrollTo(0,document.getElementById('Messages').clientHeight);
 
-  }
-  const MM =[]
 
-  const Click=()=>{
-    MM.push('hello')
-    console.log(MM,'click')
-  }
   return (
     <Chatpage>
     <div className="card" >
       <div className="card-header">
         <div className="row" >
           <div className="col-1 col-sm-1 col-md-1 col-lg-1 d-md-none">
-            <i onClick={()=>setShowChats(true)} className="fas fa-list mt-3"></i>
+            <i onClick={()=>setShowChats(true)} className="fa fa-arrow-left mt-2"></i>
           </div>
           {/* profile pic */}
           <div className="col-2 col-sm-2 col-md-2 col-lg-1">
-            <img className='profile-pic' src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="profile img" />
+            <img onClick={()=>AddClass(false)} className='rounded-circle profile-pic' src={currentFriend.photoURL} alt="profile img" />
           </div>
           {/* name and seen */}
-          <div className="col-3 col-sm-5 col-md-5 col-lg-7">
-            <div className="name">Name</div>
-            <div className="under-name">last seen</div>
+          <div className="col-3 col-sm-5 col-md-7 col-lg-9">
+            <div className="name">{currentFriend.name}</div>
+            <div className="under-name">last seen on 2/7/2022</div>
           </div>
           {/* settings */}
-          <div className="col-6 col-sm-4 col-md-4 col-lg-3">
-            <i className="fa-solid fa-magnifying-glass icon mt-2"></i>
+          <div className="col-6 col-sm-4 col-md-3 col-lg-2 float-right">
+            <i  className="fa-solid fa-magnifying-glass icon mt-2 "></i>
             <i className="fa-solid fa-paperclip icon ml-4"></i>
             <i className="fa-solid fa-ellipsis-vertical icon ml-4"></i>
           </div>
         </div>
       </div>
-      <div className="card-body " id='Messages'>
-        <Recieve/>
-        <Sent/>
-        <Recieve/>
-        <Sent/>
-        <Recieve/>
-        <Sent/>
-        {MM.map(id =>{ return <Sent key={id} id={id}  />})}
+      <div className="card-body " id='Messages' ref={scrollRef}>
+        {
+       (ActiveChatIdN===currentFriend.UserID) ? (
+        (Me.length!==0)?Me.map((id,key)=>{
+          if(id.senderId===CurrentUserID){
+            return(
+              <Sent key={key} messageText={id.messageText} time={id.time} img={currentUser.photoURL}/>
+            )
+          }
+          else{
+            return(
+              <Recieve key={key} messageText={id.messageText} time={id.time} img={currentFriend.photoURL}/>
+            )
+          }
+        }
+       )
+        :<div className='text-center time'>Start chat by sending</div>
+        )
+        :
+          <div className="text-center "style={{width:'100%',height:'50vh'}}>
+        <span className="spinner-border text-primary mt-5" style={{width:'3rem',height:'3rem'}}></span>
+      </div>
+      }
+
+
       </div>
 
       <div className="card-footer">
-        <div className="row">
+        <form onSubmit={onSub} className="row">
           <div className="col-2 col-md-1">
             <i className="far fa-grin fa-2x"></i>
           </div>
           <div className="col-8 col-md-10">
-            <input id='txtMessage' onClick={onKeyDown}
-            //  onChange={(e)=>{setSentMessage(e.target.value); console.log(sentMessage)}}  
+            <input id='txtMessage' 
+             onChange={(e)=>{setSentMessage(e.target.value); setsendButton(true)}}  
               type="text" className='form-control form-rounded' placeholder='Type here' name=""  />
           </div>
-          <div className="col-2 col-md-1">
-            <i onClick={Click} className='fas fa-microphone fa-2x'></i>
+          <div  className="col-2 col-md-1">
+          <i onClick={onSub} className={sendButton?'fas fa-paper-plane fa-2x':'fas fa-microphone fa-2x'}></i>
           </div>
-        </div>
+        </form>
       </div>
       </div>
     </Chatpage>
@@ -171,7 +211,14 @@ const Chatpage = styled.div`
     font-size: 10px;
     color: #9CA1A3 ;
     margin-top: 2%;
-    margin-left: 1%;
+    margin-left: 2%;
+  }
+  .time-sent{
+    font-size: 10px;
+    color: #9CA1A3 ;
+    margin-right: 3%;
+    margin-top: 3.5%;
+
   }
   .card{
     height: 94vh;
@@ -189,5 +236,10 @@ const Chatpage = styled.div`
     bottom: 16px;
     background: whitesmoke; */
   }
+  @media screen and (max-width:960px) {
+  .card{
+    height: 100vh;
+  }
+}
   `
 export default ChatPage
