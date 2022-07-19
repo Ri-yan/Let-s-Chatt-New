@@ -6,12 +6,10 @@ const Firstchat = ({ShowSignOut,handleGoogleSignIn,handleLogout,AddClass}) => {
             <a href="/Let-s-Chatt-New/#chatpage" className='d-md-none' 
             style={{cursor:'pointer'}} onClick={AddClass}>New Chat</a>
             <button 
-            // href="#"
             onClick={handleGoogleSignIn} 
             className={!ShowSignOut?'btn btn-primary mx-1':'btn btn-primary mx-1 d-none'}
              style={{cursor:'pointer'}} >Sign In</button>
             <button 
-            //  href="#"
              className={ShowSignOut?'btn btn-primary mx-1 right':'btn btn-primary mx-1 right d-none'} 
              style={{cursor:'pointer'}} 
              onClick={handleLogout}>Sign Out</button> 

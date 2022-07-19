@@ -43,7 +43,7 @@ const Sent=({messageText,time,img})=>{
 
   )
 }
-const ChatPage = ({Count,LoadChatMessages,CurrentMessageID,MessageSend,Messages,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
+const ChatPage = ({Count,CurrentMessageID,MessageSend,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
 const scrollRef = useRef();
 const [sentMessage, setSentMessage] = useState('');
 const [sendButton, setsendButton] = useState(false);
@@ -64,7 +64,8 @@ const onSub=async(e)=>{
     setsendButton(false);
 
 }
-const [Me, setMe] = useState([]);
+const [Messages, setMessages] = useState([]);
+const [Seen, setSeen] = useState('hh');
 const shouldLog = useRef(true)
 useEffect(() => {
   if(shouldLog.current){
@@ -76,21 +77,21 @@ useEffect(() => {
     snapshots.docs.forEach((user)=>{
       // console.log(user.data());
       M.push(user.data());
-      setMe([])
+      setMessages([])
       })
       console.log('Messages : ',M);
-      setMe(M);
+      setMessages(M);
       scrollRef.current?.scrollIntoView({behaviour:"smooth"});
     })
   return () => unsub();
-}}, [Count])
+}}, [])
   return (
     <Chatpage>
     <div className="card" >
       <div className="card-header">
         <div className="row" >
           <div className="col-1 col-sm-1 col-md-1 col-lg-1 d-md-none">
-            <Link to={'/Let-s-Chatt-New/#chatpage'}><i onClick={()=>setShowChats(true)} className="fa fa-arrow-left mt-2"></i></Link>
+            <Link to={'/Let-s-Chatt-New/#chatpage'} ><i onClick={()=>setShowChats(true)} className="fa fa-arrow-left mt-2"></i></Link>
           </div>
           {/* profile pic */}
           <div className="col-2 col-sm-2 col-md-2 col-lg-1">
@@ -99,7 +100,7 @@ useEffect(() => {
           {/* name and seen */}
           <div className="col-3 col-sm-5 col-md-7 col-lg-9">
             <div className="name">{currentFriend.name}</div>
-            <div className="under-name">last seen on 2/7/2022</div>
+            <div className="under-name">{Seen}last seen on 2/7/2022</div>
           </div>
           {/* settings */}
           <div className="col-6 col-sm-4 col-md-3 col-lg-2 float-right">
@@ -112,7 +113,7 @@ useEffect(() => {
       <div className="card-body " id='Messages' ref={scrollRef}>
         {
        (ActiveChatIdN===currentFriend.UserID) ? (
-        (Me.length!==0)?Me.map((id,key)=>{
+        (Messages.length!==0)?Messages.map((id,key)=>{
           if(id.senderId===CurrentUserID){
             return(
               <Sent key={key} messageText={id.messageText} time={id.time} img={currentUser.photoURL}/>

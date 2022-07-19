@@ -1,11 +1,9 @@
-import {useEffect,useState,useRef} from 'react'
-import { doc, onSnapshot ,collection} from "firebase/firestore";
-import { auth,db } from "../firebase"
+import {useState,useRef} from 'react'
 import  {Link}  from "react-router-dom";
 
 const ChatHead=({Show,Name,last_message,friendKey,friendName,friendImage,setCount,Count})=>{
   return(
-    <Link to={`Let-s-Chatt-New/${friendKey}`}>
+    <Link to={`Let-s-Chatt-New/${friendKey}`} >
     <li  onClick={()=>{Show(`${friendKey}`,`${friendName}`,`${friendImage}`)}} className="list-group-item list-group-item-action">
         <div className="row">
           <div className="col-3 col-md-3 col-sm-2 mx-2">

@@ -1,12 +1,8 @@
-import { useState,useEffect } from 'react';
+import { useState} from 'react';
 import {useAuth} from '../Context/AuthContext'
 import styled from 'styled-components'
 import { ChatList, Firstchat,ChatPage } from '.'
-import {ButtonGroup,DropdownButton,Dropdown,Form} from 'react-bootstrap';
-import Default_Profile_Img from '../Components/Default_Profile_Img.png'
-import Modal from 'react-bootstrap/Modal';
 import LeftPanel from './LeftPanel';
-
 import {
   BrowserRouter,
   Routes,

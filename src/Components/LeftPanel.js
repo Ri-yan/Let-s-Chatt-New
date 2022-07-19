@@ -7,7 +7,7 @@ import  {Link}  from "react-router-dom";
 
 const ChatBar = ({Show,friend}) => {
   return (
-    <Link to={`Let-s-Chatt-New/${friend.UserID}`}>
+    <Link to={`Let-s-Chatt-New/${friend.UserID}`} style={{ textDecoration:'unset'}}>
       <div onClick={()=>{Show(`${friend.UserID}`,`${friend.name}`,`${friend.photoURL}`)}} className="col-9 col-sm-9 col-md-10" >
                                   <div className="d-flex">
                                     <img className='profile-pic rounded-circle m-2'
@@ -96,7 +96,7 @@ const LeftPanel = ({addclass,handleShow,
                             :
                             friendlist.map((friend,index)=>{
                               return( 
-                                 <ChatBar key={index} Show={Show}  friend={friend} />
+                                 <ChatBar style={{ textDecoration:'unset'}} key={index} Show={Show}  friend={friend} />
                                 )
                               }) 
                         }

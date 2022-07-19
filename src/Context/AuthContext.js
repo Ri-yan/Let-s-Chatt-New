@@ -1,7 +1,6 @@
 import { useContext, useState, useEffect,createContext,useRef } from "react"
 import { auth,db } from "../firebase"
-import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
-
+import { addDoc,updateDoc, collection,getDocs,doc,onSnapshot,query,where,orderBy} from "firebase/firestore";
 import { GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut } from "firebase/auth";
 
 const AuthContext = createContext();
@@ -14,6 +13,16 @@ export function AuthProvider({ children }) {
   const [ShowSignOut, setShowSignOut] = useState(false)
 
   function logout() {
+    const data = {
+      lastSeen:new Date().toLocaleString() 
+    };
+    updateDoc(doc(db,'users',`${firebaseDocId}`), data)
+    .then(docRef => {
+        console.log("A New Document Field has been added to an existing document");
+    })
+    .catch(error => {
+        console.log(error);
+    })
     return signOut(auth)
   }
 
@@ -22,21 +31,18 @@ export function AuthProvider({ children }) {
     return signInWithPopup(auth,googleAuthProvider);
   }
 
-  const onfirebaseStateChange=()=>{
-    onAuthStateChanged(auth,onStateChange)
-  }
-
-
-
-const [ CurrentUserID,  setCurrentUserID] = useState('')
- const onStateChange= async (user)=>{
+  const [firebaseDocId, setfirebaseDocId] = useState('')
+  const [ CurrentUserID,  setCurrentUserID] = useState('')
+  const onStateChange= async (user)=>{
   let CUID='';
+  let userI='';
     const userRef=collection(db, 'users')
     let userprofile={
       UserID:"",
       email:"",
       name:"",
-      photoURL:"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+      photoURL:"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+      lastSeen:'online'
      }
     if(user){
       userprofile.email=user.email
@@ -49,7 +55,7 @@ const [ CurrentUserID,  setCurrentUserID] = useState('')
         snaphot.docs.forEach((doc)=>{
           if(doc.data().email===userprofile.email){
             CUID=doc.data().UserID;
-            // LoadFriendList(CUID);
+            userI=doc.id;
             f++;
           }
         })
@@ -59,60 +65,44 @@ const [ CurrentUserID,  setCurrentUserID] = useState('')
         console.log(err.message)
       })
       if(f!==0){
-        console.log('Welcome',`${CUID}`)
+        console.log('Welcome',`${userI}`)
+        const data = {
+          lastSeen:'online'
+        };
+        updateDoc(doc(db,'users',`${userI}`), data)
+        .then(docRef => {
+            console.log("A New Document Field has been added to an existing document");
+        })
+        .catch(error => {
+            console.log(error);
+        })
       }
       else{
         addDoc(userRef,userprofile)
         .then(userRef=>{
           CUID=user.uid;
-          // LoadFriendList(CUID);
+          userI=userRef.id
           console.log('Welcome User',CUID);
         })
       }
-     setShowSignIn('none')
-     setShowSignOut(true)
-     setCurrentActiveUser(true)
-
+     setShowSignIn('none');
+     setShowSignOut(true);
+     setCurrentActiveUser(true);
     } 
     else {
      setShowSignIn('block')
      setShowSignOut(false)
      setCurrentActiveUser(false)
-
     }  
     setCurrentUserID(CUID);
+    setfirebaseDocId(userI);
   }
 
-const [friendsLoading, setfriendsLoading] = useState(true)
-const [friendlist,setFriendList]=useState([])
-
-const LoadAll = async (CUD)=>{
-  try {
-    console.log('CurrentUserID',CurrentUserID,currentUser.uid,currentUser)
-    const userRef=collection(db, 'users');
-    const q = query(userRef,where('UserID','!=',`${CUD}`))
-    onSnapshot(q, (snapshots) => {
-      let friends=[];
-      snapshots.docs.forEach((doc)=>{
-        if((doc.data().email!==currentUser.email) && (doc.data().UserID!==currentUser.uid))
-          friends.push(doc.data());
-    })
-    setFriendList(friends);
-    setfriendsLoading(false);
-      })
-  } catch (error) {
-    console.log(error.message)
-  }
-  console.log(friendlist)
-}
-  
+//For Creating the friend List
   const [CurrentMessageID, setCurrentMessageID] = useState('');
   const [currentChat, setcurrentChat] = useState(false)
   const [ActiveChatIdN, setActiveChatIdN] = useState('')
-  const [currentFriend, setcurrentFriend] = useState({ 
-    name:'name',
-    photoURL:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'})
-
+  const [currentFriend, setcurrentFriend] = useState( { name:'name',photoURL:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'})
   const AddFriend= async(friendKey,friendName,friendImage)=>{
     let ActiveChat='';
     let MessageID='';
@@ -123,7 +113,7 @@ const LoadAll = async (CUD)=>{
       messageID:`${CurrentUserID+friendKey}`
     })
     let flag=true
-    let friendDetail= {
+    let friendDetail={
       friendId:friendKey,
       friendName:friendName,
       photoURL:friendImage,
@@ -151,7 +141,6 @@ const LoadAll = async (CUD)=>{
     if(flag){
         const docRef = doc(db, "friendList", CurrentUserID);
         const colRef = collection(docRef,'UserFriends');
-    
        await addDoc(colRef,friendDetail)
         .then((docRef)=>{
           ActiveChat=friendDetail.friendId;
@@ -177,96 +166,114 @@ const LoadAll = async (CUD)=>{
      else{
       setcurrentChat(true);
       console.log('already in friends');
-
     }
     setActiveChatIdN(ActiveChat);
     setCurrentMessageID(MessageID);
     // LoadChatMessages(CurrentUserID,ActiveChat,MessageID);
-    console.log('Active Chat Head',ActiveChat);
-    console.log('MessageID ',MessageID)
+    // console.log('Active Chat Head',ActiveChat);
+    // console.log('MessageID ',MessageID)
   }
-  
-  
-const [friendsLoad, setfriendsLoad] = useState(true)
-const [chatHeads, setchatHeads] = useState([])
-const Load=(id) => {
-  {
-  const FRef =collection(doc(db, "friendList",`${id}`),'UserFriends')
-  onSnapshot(FRef, (snapshots) => {
-    const newFriend=[] 
-    snapshots.docs.forEach((id)=>{
-      newFriend.push(id.data());
-      // console.log("Current data: ", id.data());
-    })
-    setchatHeads(newFriend);
-    // setChats(...Chats,newFriend);
-    setfriendsLoad(false)    
-    // setFload(false);
-});
-}}
 
-
-const [Messages, setMessages] = useState([]);
-  const LoadChat=async(current,friendid,Mid)=>{
+// For Loading All Contacts
+  const [friendsLoading, setfriendsLoading] = useState(true)
+  const [friendlist,setFriendList]=useState([])
+  const LoadAllContacts = async (CUD)=>{
     try {
-      const messageRef =query(collection(doc(db,"MessageList",`${CurrentMessageID}`),'messages'),orderBy('time'))
-      onSnapshot(messageRef, (snapshots) => {  
-        let M=[];
-        snapshots.docs.forEach((user)=>{
-          console.log(user.data());
-          M.push(user.data());
-          })
-          setMessages(M);
-        }
-      )
-    } catch (err) {
-      console.log(err.message)
+      console.log('CurrentUserID',CurrentUserID,currentUser.uid,currentUser)
+      const userRef=collection(db, 'users');
+      const q = query(userRef,where('UserID','!=',`${CUD}`))
+      onSnapshot(q, (snapshots) => {
+        let friends=[];
+        snapshots.docs.forEach((doc)=>{
+          if((doc.data().email!==currentUser.email) && (doc.data().UserID!==currentUser.uid))
+            friends.push(doc.data());
+      })
+      setFriendList(friends);
+      setfriendsLoading(false);
+        })
+    } catch (error) {
+      console.log(error.message)
     }
-    
+    console.log(friendlist)
+  }
+//For Active ChatHeads 
+  const [friendsLoad, setfriendsLoad] = useState(true)
+  const [chatHeads, setchatHeads] = useState([])
+  const LoadActiveChats=(id) => {
+    const FRef =collection(doc(db, "friendList",`${id}`),'UserFriends')
+    onSnapshot(FRef, (snapshots) => {
+      const newFriend=[] 
+      snapshots.docs.forEach((id)=>{
+        newFriend.push(id.data());
+      })
+      setchatHeads(newFriend);
+      setfriendsLoad(false)    
+  });
+  }
+//For Sending Messages
+  async function MessageSend(messageText,time){
+    let message ={
+      senderId:`${CurrentUserID}`,
+      reciverId:`${ActiveChatIdN}`,
+      messageText:messageText,
+      time:new Date().toLocaleString(),
+      messageID:CurrentMessageID
+  }
+    const messageRef =collection(doc(db,"MessageList",`${CurrentUserID+ActiveChatIdN}`),'messages')
+    const messageRef2 =collection(doc(db,"MessageList",`${ActiveChatIdN+CurrentUserID}`),'messages')
+
+    console.log('message is : ',message)
+    await addDoc(messageRef,message)
+    .then(console.log('message added'))
+    .catch(err=>console.log(err.message))
+
+    await addDoc(messageRef2,message)
+    .then(console.log('message added'))
+    .catch(err=>console.log(err.message))
   }
 
 
-async function MessageSend(messageText,time){
-  let message ={
-    senderId:`${CurrentUserID}`,
-    reciverId:`${ActiveChatIdN}`,
-    messageText:messageText,
-    time:new Date().toLocaleString(),
-    messageID:CurrentMessageID
-}
-  const messageRef =collection(doc(db,"MessageList",`${CurrentUserID+ActiveChatIdN}`),'messages')
-  const messageRef2 =collection(doc(db,"MessageList",`${ActiveChatIdN+CurrentUserID}`),'messages')
 
-  console.log('message is : ',message)
-  await addDoc(messageRef,message)
-  .then(console.log('message added'))
-  .catch(err=>console.log(err.message))
 
-  await addDoc(messageRef2,message)
-  .then(console.log('message added'))
-  .catch(err=>console.log(err.message))
-}
+// const [Messages, setMessages] = useState([]);
+//   const LoadChat=async(current,friendid,Mid)=>{
+//     try {
+//       const messageRef =query(collection(doc(db,"MessageList",`${CurrentMessageID}`),'messages'),orderBy('time'))
+//       onSnapshot(messageRef, (snapshots) => {  
+//         let M=[];
+//         snapshots.docs.forEach((user)=>{
+//           console.log(user.data());
+//           M.push(user.data());
+//           })
+//           setMessages(M);
+//         }
+//       )
+//     } catch (err) {
+//       console.log(err.message)
+//     }
+    
+//   }
+
+
 
 
 
 
 
 const [SetSign, setSetSign] = useState(false)
+
 // solution to useeffect twice running
   const shouldLog = useRef(true)
   useEffect(() => {
     if(shouldLog.current){
       shouldLog.current=false;
-      // onfirebaseStateChange() 
       const unsubscribe = onAuthStateChanged(auth,(user) => {
+        console.log("Auth",user);
         setCurrentUser(user);
         setLoading(false);
         onStateChange(user);
-        // if(user.emailVerified)
-        console.log("Auth",user);
-        Load(user.uid);
-        LoadAll(user.uid)
-        // LoadChat()
+        LoadActiveChats(user.uid);
+        LoadAllContacts(user.uid)
     })
     return () => {
       unsubscribe();
@@ -283,23 +290,17 @@ const [SetSign, setSetSign] = useState(false)
     currentActiveUser,
     friendlist,
     setFriendList,
-    // LoadAllUsers,
     friendsLoading,
     setfriendsLoading,
     AddFriend,
     currentFriend,
     MessageSend,
-    // LoadFriendList,
     loading,chatHeads,
     friendsLoad,
-    // LoadChatMessages,
     ActiveChatIdN,
     currentChat,
-    Messages,
     CurrentUserID,
-    // LoadFriendList,
     CurrentMessageID,
-    setMessages,LoadChat
   }
   return (
     <AuthContext.Provider value={value}>
