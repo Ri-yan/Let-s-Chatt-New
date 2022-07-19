@@ -99,11 +99,11 @@ const LoadAll = async (CUD)=>{
     })
     setFriendList(friends);
     setfriendsLoading(false);
-    console.log(friendlist)
       })
   } catch (error) {
     console.log(error.message)
   }
+  console.log(friendlist)
 }
   
   const [CurrentMessageID, setCurrentMessageID] = useState('');
@@ -141,7 +141,6 @@ const LoadAll = async (CUD)=>{
             setcurrentChat(true);
             flag=false;
             MessageID=user.data().messageID;
-            // LoadChatMessages(CurrentUserID,ActiveChat,MessageID);
           }
         })
       }
@@ -159,7 +158,6 @@ const LoadAll = async (CUD)=>{
           setcurrentChat(true);
           console.log('friend added',docRef.id);
           MessageID=friendDetail.messageID;
-          // LoadChatMessages(CurrentUserID,ActiveChat,MessageID)
           }
           )
         .catch(err=>{

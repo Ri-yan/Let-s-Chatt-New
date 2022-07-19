@@ -1,9 +1,12 @@
 import {useEffect,useState,useRef} from 'react'
 import { doc, onSnapshot ,collection} from "firebase/firestore";
 import { auth,db } from "../firebase"
-const ChatHead=({Show,Name,last_message,friendKey,friendName,friendImage})=>{
+import  {Link}  from "react-router-dom";
+
+const ChatHead=({Show,Name,last_message,friendKey,friendName,friendImage,setCount,Count})=>{
   return(
-    <li  onClick={()=>Show(`${friendKey}`,`${friendName}`,`${friendImage}`)} className="list-group-item list-group-item-action">
+    <Link to={`Let-s-Chatt-New/${friendKey}`}>
+    <li  onClick={()=>{Show(`${friendKey}`,`${friendName}`,`${friendImage}`)}} className="list-group-item list-group-item-action">
         <div className="row">
           <div className="col-3 col-md-3 col-sm-2 mx-2">
             <img className='friend-pic rounded-circle ' src={friendImage} alt="profile img" />
@@ -15,42 +18,13 @@ const ChatHead=({Show,Name,last_message,friendKey,friendName,friendImage})=>{
             <div className="under-name">{last_message}</div>
           </div>
         </div>
-      </li>
+      </li></Link>
   )
 }
-const ChatList = ({currentUser,LoadFriendList,CurrentUserID,Show,friendsLoad,chatHeads}) => {
-  // useEffect(() => {
-  //   const unsub=()=>{if(currentUser)LoadFriendList(currentUser.uid)}
-  //   return () => unsub();
-  // }, [chatHeads,currentUser])
+const ChatList = ({currentUser,LoadFriendList,CurrentUserID,Show,friendsLoad,chatHeads,setCount,Count}) => {
   const [Chats, setChats] = useState([])
   const [Fload, setFload] = useState(true)
-
   const shouldLog = useRef(true)
-
-// useEffect(() => {
-//   if(shouldLog.current){
-//     shouldLog.current=false;
-//   const FRef =collection(doc(db, "friendList",`${currentUser.uid}`),'UserFriends')
-//   const unsub = onSnapshot(FRef, (snapshots) => {
-//     const newFriend=[] 
-//     snapshots.docs.forEach((id)=>{
-//       newFriend.push(id.data());
-//       // console.log("Current data: ", id.data());
-//     })
-//     setChats(...Chats,newFriend);
-//     setFload(false);
-// });
-//   return () => unsub;
-// }}, [])
-
-
-  
-
-
-
-
-
   return (
     <ul className="list-group list-group-flush" style={{height:'84vh',overflowY:'scroll'}}>
       <li  className="list-group-item" style={{background: '#f8f8f8'}}>

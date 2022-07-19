@@ -7,12 +7,6 @@ import Default_Profile_Img from '../Components/Default_Profile_Img.png'
 import Modal from 'react-bootstrap/Modal';
 import LeftPanel from './LeftPanel';
 
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from "react-router-dom";
-import PrivateRoute from './PrivateRoute';
 const Main = () => {
   const [showchats, setShowChats] = useState(true)
   const [addclass, setaddclass] = useState(true)
@@ -59,7 +53,6 @@ const Main = () => {
   
 ///////////////////////////////////////////////////////////////////// login
   return (
-    <BrowserRouter>
     <MainContainer>
       <span className='top'></span>
       <div  className="chatbox container-fluid bg-white shadow-lg rounded">
@@ -67,32 +60,20 @@ const Main = () => {
           <LeftPanel currentActiveUser={currentActiveUser} addclass={addclass} currentUser={currentUser} 
           handleShow ={handleShow} show={show} handleGoogleSignIn ={handleGoogleSignIn} handleLogout ={handleLogout}
            handleClose ={handleClose} Show ={Show} ChatList ={ChatList} setCount ={setCount} Count ={Count}/>
-          
           <div id='side-2' className={addclass?'col-md-8 ps-md-0':'col-md-8 ps-md-0 d-none'}>
-          <Routes>
-            { showchats ? 
-            <Route path="/Let-s-Chatt-New" element={<PrivateRoute><Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} /></PrivateRoute>}></Route>
-            :<Route path={`Let-s-Chatt-New/${ActiveChatIdN}`} element={<PrivateRoute><ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
-            MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
-             currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} 
-             setShowChats={setShowChats}/></PrivateRoute>}></Route>
-            }
-            <Route path='/Let-s-Chatt-New/chatpage' element={<PrivateRoute><Firstchat/></PrivateRoute>}></Route>
-          </Routes> 
-          {/* {
+          {
             showchats ? 
-           <></> // <Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />
+            <Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />
             :
             <ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
             MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
              currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} 
              setShowChats={setShowChats}/>
-          }  */}
+          } 
           </div>
       </div>
       </div>
     </MainContainer>
-    </BrowserRouter>
   )
 }
 const MainContainer = styled.div`
@@ -100,9 +81,6 @@ const MainContainer = styled.div`
   height: 100vh;
   width: 100%;
   position: fixed;
-  a{
-    text-decoration: unset;
-}
   .top{
     height: 130px;
     width: 100%;

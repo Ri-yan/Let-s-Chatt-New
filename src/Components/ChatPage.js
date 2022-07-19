@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import {useAuth} from '../Context/AuthContext'
 import { auth,db } from "../firebase"
 import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
-
+import  {Link}  from "react-router-dom";
 
 const Recieve=({messageText,time,img})=>{
   return(
@@ -43,10 +43,10 @@ const Sent=({messageText,time,img})=>{
 
   )
 }
-const ChatPage = ({LoadChatMessages,CurrentMessageID,MessageSend,Messages,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
+const ChatPage = ({Count,LoadChatMessages,CurrentMessageID,MessageSend,Messages,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
 const scrollRef = useRef();
-  const [sentMessage, setSentMessage] = useState('');
-  const [sendButton, setsendButton] = useState(false);
+const [sentMessage, setSentMessage] = useState('');
+const [sendButton, setsendButton] = useState(false);
 const{LoadChat}= useAuth()
 const onSub=async(e)=>{
     e.preventDefault()
@@ -64,44 +64,33 @@ const onSub=async(e)=>{
     setsendButton(false);
 
 }
-// useEffect(() => {
-//   if(document.getElementById('txtMessage').value==='')
-//     setsendButton(false);
-//     else
-//     setsendButton(true);
-//     scrollRef.current?.scrollIntoView({behaviour:"smooth"});
-// }, [Messages])
-const shouldLog = useRef(true)
-
 const [Me, setMe] = useState([]);
+const shouldLog = useRef(true)
 useEffect(() => {
   if(shouldLog.current){
     shouldLog.current=false;
-    console.log('currentFriend',currentFriend.messageID)
-  // const messageRef =query(collection(doc(db,"MessageList",`${currentUser.uid+currentFriend.UserID}`),'messages'),orderBy('time'))
-  const unsub=()=>onSnapshot(query(collection(doc(db,"MessageList",`${currentUser.uid+currentFriend.UserID}`),'messages'),orderBy('time')), (snapshots) => {  
+    console.log('currentFriend messageid',currentFriend.messageID);
+  const messageRef =query(collection(doc(db,"MessageList",`${currentUser.uid+currentFriend.UserID}`),'messages'),orderBy('time'))
+  const unsub=()=>onSnapshot(messageRef, (snapshots) => {  
     const M=[];
     snapshots.docs.forEach((user)=>{
-      console.log('Helllllloo',`${currentUser.uid+ActiveChatIdN}`)
-      console.log(user.data());
+      // console.log(user.data());
       M.push(user.data());
+      setMe([])
       })
-      // setMessages(M);
+      console.log('Messages : ',M);
       setMe(M);
       scrollRef.current?.scrollIntoView({behaviour:"smooth"});
     })
   return () => unsub();
-}}, [])
-
-
-
+}}, [Count])
   return (
     <Chatpage>
     <div className="card" >
       <div className="card-header">
         <div className="row" >
           <div className="col-1 col-sm-1 col-md-1 col-lg-1 d-md-none">
-            <i onClick={()=>setShowChats(true)} className="fa fa-arrow-left mt-2"></i>
+            <Link to={'/Let-s-Chatt-New/#chatpage'}><i onClick={()=>setShowChats(true)} className="fa fa-arrow-left mt-2"></i></Link>
           </div>
           {/* profile pic */}
           <div className="col-2 col-sm-2 col-md-2 col-lg-1">
