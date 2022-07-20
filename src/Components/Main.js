@@ -1,19 +1,22 @@
-import { useState} from 'react';
+import { useState,useEffect} from 'react';
 import {useAuth} from '../Context/AuthContext'
 import styled from 'styled-components'
 import { ChatList, Firstchat,ChatPage } from '.'
 import LeftPanel from './LeftPanel';
+import  {useNavigate}  from "react-router-dom";
+
 import {
   BrowserRouter,
   Routes,
   Route,
 } from "react-router-dom";
 import PrivateRoute from './PrivateRoute';
+import { auth } from '../firebase';
 const Main = () => {
   const [showchats, setShowChats] = useState(true)
   const [addclass, setaddclass] = useState(true)
   const [Count, setCount] = useState(0)
-  const AddClass=()=>{
+  const AddClass=(j=true)=>{
     setaddclass(false)
   }
   const Show=async(friendKey,friendName,friendImage)=>{
@@ -21,12 +24,12 @@ const Main = () => {
     setShowChats(false);
     setaddclass(true);
     await AddFriend(friendKey,friendName,friendImage)
-    // .then(LoadChatMessages(CurrentUserID,ActiveChatIdN,`${CurrentUserID+ActiveChatIdN}`))
   }
 // //////////////////////////////////////////////////////////// login
   const {CurrentMessageID,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
   const [error, setError] = useState("")
   const {googleSignIn} = useAuth()
+
   const handleGoogleSignIn = async (e) => {
     e.preventDefault();
     try {
@@ -53,6 +56,8 @@ const Main = () => {
   const handleClose = () => {setShow(false); }
   const handleShow = () => {setShow(true);  };
   
+
+
 ///////////////////////////////////////////////////////////////////// login
   return (
     <BrowserRouter>
@@ -60,20 +65,23 @@ const Main = () => {
       <span className='top'></span>
       <div  className="chatbox container-fluid bg-white shadow-lg rounded">
         <div className="row h-100">
-          <LeftPanel currentActiveUser={currentActiveUser} addclass={addclass} currentUser={currentUser} 
-          handleShow ={handleShow} show={show} handleGoogleSignIn ={handleGoogleSignIn} handleLogout ={handleLogout}
-           handleClose ={handleClose} Show ={Show} ChatList ={ChatList} setCount ={setCount} Count ={Count}/>
+          {
+           ( auth!=null )? <LeftPanel currentActiveUser={currentActiveUser} addclass={addclass} currentUser={currentUser} 
+            handleShow ={handleShow} show={show} handleGoogleSignIn ={handleGoogleSignIn} handleLogout ={handleLogout}
+             handleClose ={handleClose} Show ={Show} ChatList ={ChatList} setCount ={setCount} Count ={Count}/>:<div>load</div>
+          }
+         
           
           <div id='side-2' className={addclass?'col-md-8 ps-md-0':'col-md-8 ps-md-0 d-none'}>
           <Routes>
             { showchats ? 
-            <Route path="/Let-s-Chatt-New" element={<PrivateRoute><Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} /></PrivateRoute>}></Route>
+            <Route path="/Let-s-Chatt-New" element={<Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />}></Route>
             :<Route path={`Let-s-Chatt-New/${ActiveChatIdN}`} element={<PrivateRoute><ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
             MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
              currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} 
              setShowChats={setShowChats}/></PrivateRoute>}></Route>
             }
-            <Route path='/Let-s-Chatt-New/chatpage' element={<PrivateRoute><Firstchat/></PrivateRoute>}></Route>
+            <Route path='/Let-s-Chatt-New/#chatpage' element={<PrivateRoute><LeftPanel/></PrivateRoute>}></Route>
           </Routes> 
           {/* {
             showchats ? 

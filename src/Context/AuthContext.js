@@ -169,6 +169,7 @@ export function AuthProvider({ children }) {
     }
     setActiveChatIdN(ActiveChat);
     setCurrentMessageID(MessageID);
+    LoadChat(CurrentUserID,ActiveChat,MessageID)
     // LoadChatMessages(CurrentUserID,ActiveChat,MessageID);
     // console.log('Active Chat Head',ActiveChat);
     // console.log('MessageID ',MessageID)
@@ -235,24 +236,24 @@ export function AuthProvider({ children }) {
 
 
 
-// const [Messages, setMessages] = useState([]);
-//   const LoadChat=async(current,friendid,Mid)=>{
-//     try {
-//       const messageRef =query(collection(doc(db,"MessageList",`${CurrentMessageID}`),'messages'),orderBy('time'))
-//       onSnapshot(messageRef, (snapshots) => {  
-//         let M=[];
-//         snapshots.docs.forEach((user)=>{
-//           console.log(user.data());
-//           M.push(user.data());
-//           })
-//           setMessages(M);
-//         }
-//       )
-//     } catch (err) {
-//       console.log(err.message)
-//     }
+const [Messages, setMessages] = useState([]);
+  const LoadChat=async(current,friendid,Mid)=>{
+    try {
+      const messageRef =query(collection(doc(db,"MessageList",`${current+friendid}`),'messages'),orderBy('time'))
+      onSnapshot(messageRef, (snapshots) => {  
+        let M=[];
+        snapshots.docs.forEach((user)=>{
+          console.log(user.data());
+          M.push(user.data());
+          })
+          setMessages(M);
+        }
+      )
+    } catch (err) {
+      console.log(err.message)
+    }
     
-//   }
+  }
 
 
 
@@ -300,7 +301,7 @@ const [SetSign, setSetSign] = useState(false)
     ActiveChatIdN,
     currentChat,
     CurrentUserID,
-    CurrentMessageID,
+    CurrentMessageID,Messages, setMessages
   }
   return (
     <AuthContext.Provider value={value}>

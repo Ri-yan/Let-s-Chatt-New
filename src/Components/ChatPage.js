@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import {useAuth} from '../Context/AuthContext'
 import { auth,db } from "../firebase"
 import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
-import  {Link}  from "react-router-dom";
+import  {Link,useNavigate}  from "react-router-dom";
 
 const Recieve=({messageText,time,img})=>{
   return(
@@ -47,7 +47,7 @@ const ChatPage = ({Count,CurrentMessageID,MessageSend,ActiveChatIdN,currentUser,
 const scrollRef = useRef();
 const [sentMessage, setSentMessage] = useState('');
 const [sendButton, setsendButton] = useState(false);
-const{LoadChat}= useAuth()
+const{LoadChat,Messages, setMessages}= useAuth()
 const onSub=async(e)=>{
     e.preventDefault()
     let message ={
@@ -64,7 +64,7 @@ const onSub=async(e)=>{
     setsendButton(false);
 
 }
-const [Messages, setMessages] = useState([]);
+// const [Messages, setMessages] = useState([]);
 const [Seen, setSeen] = useState('hh');
 const shouldLog = useRef(true)
 useEffect(() => {
@@ -85,13 +85,17 @@ useEffect(() => {
     })
   return () => unsub();
 }}, [])
+useEffect(() => {
+  scrollRef.current?.scrollIntoView({behavior: 'smooth'});
+}, [Messages]);
+const navigate = useNavigate();
   return (
     <Chatpage>
     <div className="card" >
       <div className="card-header">
         <div className="row" >
           <div className="col-1 col-sm-1 col-md-1 col-lg-1 d-md-none">
-            <Link to={'/Let-s-Chatt-New/#chatpage'} ><i onClick={()=>setShowChats(true)} className="fa fa-arrow-left mt-2"></i></Link>
+            <i onClick={()=>{setShowChats(true); navigate('/Let-s-Chatt-New/#chatpage');}} className="fa fa-arrow-left mt-2"></i>
           </div>
           {/* profile pic */}
           <div className="col-2 col-sm-2 col-md-2 col-lg-1">
@@ -110,7 +114,7 @@ useEffect(() => {
           </div>
         </div>
       </div>
-      <div className="card-body " id='Messages' ref={scrollRef}>
+      <div className="card-body " id='Messages' >
         {
        (ActiveChatIdN===currentFriend.UserID) ? (
         (Messages.length!==0)?Messages.map((id,key)=>{
@@ -134,6 +138,7 @@ useEffect(() => {
       </div>
       }
 
+<div  ref={scrollRef} />
 
       </div>
 
