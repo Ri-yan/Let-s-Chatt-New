@@ -16,8 +16,8 @@ Adding New Chats
 Functional Dropdown Menu
 ![Screenshot (20)](https://user-images.githubusercontent.com/74947287/179936954-6eda8b12-7b52-492c-abc7-c88ad5361204.png)
 
-##Responsive Also
-Mobile View
+## Responsive Also
+ Mobile View
 ![Screenshot (22)](https://user-images.githubusercontent.com/74947287/179937122-7cd19d33-8c12-4bd8-8bd7-edbace316248.png)
 ![Screenshot (21)](https://user-images.githubusercontent.com/74947287/179937172-6418670b-cf31-40e9-ab8d-c860bf9a8985.png)
 
