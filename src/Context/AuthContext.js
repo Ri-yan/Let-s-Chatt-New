@@ -11,18 +11,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [ShowSignIn, setShowSignIn] = useState('none')
   const [ShowSignOut, setShowSignOut] = useState(false)
-
+  const [log, setlog] = useState(false)
   function logout() {
-    const data = {
-      lastSeen:new Date().toLocaleString() 
-    };
-    updateDoc(doc(db,'users',`${firebaseDocId}`), data)
-    .then(docRef => {
-        console.log("A New Document Field has been added to an existing document");
-    })
-    .catch(error => {
-        console.log(error);
-    })
     return signOut(auth)
   }
 
@@ -31,6 +21,19 @@ export function AuthProvider({ children }) {
     return signInWithPopup(auth,googleAuthProvider);
   }
 
+  const LastSeen=()=>{
+    const data = {
+      lastSeen:new Date().toLocaleString() 
+    };
+    const mrf=doc(db,"users",`${firebaseDocId}`)
+    updateDoc(mrf, data)
+    .then(docRef => {
+        console.log("A New Document Field has been added to an existing document");
+    })
+    .catch(error => {
+        console.log(error);
+    })
+  }
   const [firebaseDocId, setfirebaseDocId] = useState('')
   const [ CurrentUserID,  setCurrentUserID] = useState('')
   const onStateChange= async (user)=>{
@@ -275,6 +278,7 @@ const [SetSign, setSetSign] = useState(false)
         onStateChange(user);
         LoadActiveChats(user.uid);
         LoadAllContacts(user.uid)
+       
     })
     return () => {
       unsubscribe();
@@ -301,7 +305,8 @@ const [SetSign, setSetSign] = useState(false)
     ActiveChatIdN,
     currentChat,
     CurrentUserID,
-    CurrentMessageID,Messages, setMessages
+    CurrentMessageID,Messages, setMessages, LastSeen,setlog
+
   }
   return (
     <AuthContext.Provider value={value}>

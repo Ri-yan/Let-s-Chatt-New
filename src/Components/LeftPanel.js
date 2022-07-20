@@ -4,6 +4,7 @@ import {ButtonGroup,DropdownButton,Dropdown,Form} from 'react-bootstrap';
 import Default_Profile_Img from '../Components/Default_Profile_Img.png'
 import Modal from 'react-bootstrap/Modal';
 import  {Link,useNavigate}  from "react-router-dom";
+import { auth,db } from "../firebase"
 
 const ChatBar = ({Show,friend}) => {
   return (
@@ -31,7 +32,7 @@ const LeftPanel = ({addclass,handleShow,
   ChatList,
   setCount,
   Count,show}) => {
-  const {CurrentMessageID,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
+  const {CurrentMessageID,LastSeen,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
   let nav = useNavigate()
   return (
     <div id='side-1 '
@@ -56,7 +57,7 @@ const LeftPanel = ({addclass,handleShow,
                             as={ButtonGroup}
                             key={'start'}
                             id={'dropdown-toggle-drop-start bg-transparent'}
-                            drop={'start'}
+                            align={{ lg: 'end' }}                            drop={'start'}
                             variant="light"
                             title={
                                     <span>
@@ -70,7 +71,7 @@ const LeftPanel = ({addclass,handleShow,
                       <Dropdown.Divider
                       className={ShowSignOut?'d-block':'d-none'}
                       />
-                      <Dropdown.Item onClick={()=>{handleLogout(); nav('/Let-s-Chatt-New')}} className={ShowSignOut?'d-block':'d-none'}  style={{display:{ShowSignOut}}} eventKey="4">Sign Out</Dropdown.Item>
+                      <Dropdown.Item onClick={()=>{handleLogout(); nav('/Let-s-Chatt-New');}} className={ShowSignOut?'d-block':'d-none'}  style={{display:{ShowSignOut}}} eventKey="4">Sign Out</Dropdown.Item>
                     </DropdownButton> 
                     <Modal show={show} onHide={handleClose}>
                       <Modal.Header closeButton>

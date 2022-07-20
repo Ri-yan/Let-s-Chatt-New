@@ -1,5 +1,7 @@
 import { useState ,useEffect,useRef} from 'react'
 import styled from 'styled-components'
+import {ButtonGroup,DropdownButton,Dropdown,Form} from 'react-bootstrap';
+
 // import { auth,db } from "../firebase"
 // import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
 import {useAuth} from '../Context/AuthContext'
@@ -65,7 +67,7 @@ const onSub=async(e)=>{
 
 }
 // const [Messages, setMessages] = useState([]);
-const [Seen, setSeen] = useState('hh');
+const [Seen, setSeen] = useState('XXX');
 const shouldLog = useRef(true)
 useEffect(() => {
   if(shouldLog.current){
@@ -86,6 +88,14 @@ useEffect(() => {
   return () => unsub();
 }}, [])
 useEffect(() => {
+  onSnapshot(collection(db,'users'), (snapshots) => {  
+    let stat='';
+    snapshots.docs.forEach((user)=>{
+      if(user.data().UserID===ActiveChatIdN)
+      stat=user.data().lastSeen;
+  })
+  setSeen(stat)
+});
   scrollRef.current?.scrollIntoView({behavior: 'smooth'});
 }, [Messages]);
 const navigate = useNavigate();
@@ -102,15 +112,31 @@ const navigate = useNavigate();
             <img onClick={()=>AddClass(false)} className='rounded-circle profile-pic' src={currentFriend.photoURL} alt="profile img" />
           </div>
           {/* name and seen */}
-          <div className="col-3 col-sm-5 col-md-7 col-lg-9">
+          <div className="col-7 col-sm-5 col-md-7 col-lg-9">
             <div className="name">{currentFriend.name}</div>
-            <div className="under-name">{Seen}last seen on 2/7/2022</div>
+            <div className="under-name">{Seen}</div>
           </div>
           {/* settings */}
-          <div className="col-6 col-sm-4 col-md-3 col-lg-2 float-right">
-            <i  className="fa-solid fa-magnifying-glass icon mt-2 "></i>
-            <i className="fa-solid fa-paperclip icon ml-4"></i>
-            <i className="fa-solid fa-ellipsis-vertical icon ml-4"></i>
+          <div className="col-2 col-sm-4 col-md-3 col-lg-2 float-right" style={{display:'flex',alignItems:'baseline'}}>
+            <i  className="fa-solid fa-magnifying-glass icon mt-2 d-none d-md-block d-lg-block"></i>
+            <i className="fa-solid fa-paperclip icon ml-4 d-none d-md-block d-lg-block"></i>
+            {/* <i className="fa-solid fa-ellipsis-vertical icon ml-4 mt-1"></i> */}
+            <DropdownButton
+                            as={ButtonGroup}
+                            key={'start'}
+                            id={'dropdown-toggle-drop-start bg-transparent'}
+                            // drop={'start'}
+                            variant="light"
+                            title={
+                                    <span>
+                                      <i className="fas fa-ellipsis-v icon" style={{cursor:'pointer',float:'right '}}></i>
+                                    </span>
+                                  }
+                            >
+                      <Dropdown.Item  eventKey="1">Feature 1</Dropdown.Item>
+                      <Dropdown.Item eventKey="2">Feature 2</Dropdown.Item>
+                      <Dropdown.Item id='linkSignOut' eventKey="3">Feature 3</Dropdown.Item>
+                    </DropdownButton> 
           </div>
         </div>
       </div>
@@ -148,9 +174,9 @@ const navigate = useNavigate();
             <i className="far fa-grin fa-2x"></i>
           </div>
           <div className="col-8 col-md-10">
-            <input id='txtMessage' 
+            <textarea rows="2" cols="50" required autofocus id='txtMessage' 
              onChange={(e)=>{setSentMessage(e.target.value); setsendButton(true)}}  
-              type="text" className='form-control form-rounded' placeholder='Type here' name=""  />
+              type="text" className='form-control form-rounded textareaElement' placeholder='Type here' name=""  />
           </div>
           <div  className="col-2 col-md-1">
           <i onClick={onSub} className={sendButton?'fas fa-paper-plane fa-2x':'fas fa-microphone fa-2x'}></i>
@@ -162,6 +188,20 @@ const navigate = useNavigate();
   )
 }
 const Chatpage = styled.div`
+textarea { 
+  min-height: 2.1em;
+  max-height:fit-content;
+  resize: vertical; 
+  max-width: 100%; 
+    max-height: 100px;
+ }
+ .textareaElement {
+  max-width: 100%; 
+  min-height: 2.1em;
+  max-height: 3em;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
   .profile-pic{
     height: 40px;
     width: 40px;
@@ -195,12 +235,16 @@ const Chatpage = styled.div`
     border-radius: 1rem;
     padding: 10px 15px;
     display: inline-block;
+    max-width: 100%;
+    max-height: fit-content;
   }
   .sent{
     background: whitesmoke;
     border-radius: 1rem;
     padding: 10px 15px;
     display: inline-block;
+    max-width: 100%;
+    max-height: fit-content;
   }
   .time{
     font-size: 10px;

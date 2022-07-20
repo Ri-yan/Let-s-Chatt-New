@@ -4,6 +4,8 @@ import styled from 'styled-components'
 import { ChatList, Firstchat,ChatPage } from '.'
 import LeftPanel from './LeftPanel';
 import  {useNavigate}  from "react-router-dom";
+import { auth,db } from "../firebase"
+import { addDoc, collection,updateDoc,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
 
 import {
   BrowserRouter,
@@ -11,7 +13,6 @@ import {
   Route,
 } from "react-router-dom";
 import PrivateRoute from './PrivateRoute';
-import { auth } from '../firebase';
 const Main = () => {
   const [showchats, setShowChats] = useState(true)
   const [addclass, setaddclass] = useState(true)
@@ -26,7 +27,7 @@ const Main = () => {
     await AddFriend(friendKey,friendName,friendImage)
   }
 // //////////////////////////////////////////////////////////// login
-  const {CurrentMessageID,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
+  const {setlog,LastSeen,CurrentMessageID,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
   const [error, setError] = useState("")
   const {googleSignIn} = useAuth()
 
@@ -43,7 +44,9 @@ const Main = () => {
   };
    async function handleLogout() {
     setError("")
+    setlog(true);
     try {
+      LastSeen();
       await logout()
       window.location.reload(true);
     } catch (err) {
@@ -170,6 +173,7 @@ const MainContainer = styled.div`
 
 } 
 .dropdown-menu.show {
+  right:0px;
     display: block;
     transform: translate3d(-30px, 0px, 0px);
 }
