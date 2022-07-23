@@ -8,7 +8,7 @@ import { auth,db } from "../firebase"
 
 const ChatBar = ({Show,friend}) => {
   return (
-    <Link to={`Let-s-Chatt-New/${friend.UserID}`} style={{ textDecoration:'unset'}}>
+    <Link to={`/${friend.UserID}`} style={{ textDecoration:'unset'}}>
       <div onClick={()=>{Show(`${friend.UserID}`,`${friend.name}`,`${friend.photoURL}`)}} className="col-9 col-sm-9 col-md-10" >
                                   <div className="d-flex">
                                     <img className='profile-pic rounded-circle m-2'
@@ -35,9 +35,8 @@ const LeftPanel = ({addclass,handleShow,
   const {CurrentMessageID,LastSeen,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
   let nav = useNavigate()
   return (
-    <div id='side-1 '
-          className={addclass?'col-md-4 pe-md-0 d-none d-md-block':'col-md-4 pe-md-0'}
-          >
+    // <div id='side-1 'className={addclass?'col-md-4 pe-md-0 d-none d-md-block':'col-md-4 pe-md-0'} >
+      <div className="">
             <div className="card">
               <div className="card-header h-100">
                 <div className="row">
@@ -71,7 +70,7 @@ const LeftPanel = ({addclass,handleShow,
                       <Dropdown.Divider
                       className={ShowSignOut?'d-block':'d-none'}
                       />
-                      <Dropdown.Item onClick={()=>{handleLogout(); nav('/Let-s-Chatt-New');}} className={ShowSignOut?'d-block':'d-none'}  style={{display:{ShowSignOut}}} eventKey="4">Sign Out</Dropdown.Item>
+                      <Dropdown.Item onClick={()=>{handleLogout(); LastSeen(); nav('/');}} className={ShowSignOut?'d-block':'d-none'}  style={{display:{ShowSignOut}}} eventKey="4">Sign Out</Dropdown.Item>
                     </DropdownButton> 
                     <Modal show={show} onHide={handleClose}>
                       <Modal.Header closeButton>
@@ -111,6 +110,7 @@ const LeftPanel = ({addclass,handleShow,
               </div>
             <ChatList setCoun={setCount} Count={Count} currentUser={currentUser} LoadFriendList={LoadFriendList} CurrentUserID={CurrentUserID}
              friendsLoad={friendsLoad} chatHeads={chatHeads} Show={Show} />
+          {/* </div> */}
           </div>
   )
 }

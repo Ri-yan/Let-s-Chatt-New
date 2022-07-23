@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
 
   const LastSeen=()=>{
     const data = {
-      lastSeen:new Date().toLocaleString() 
+      lastSeen:new Date().toLocaleString('en-US') 
     };
     const mrf=doc(db,"users",`${firebaseDocId}`)
     updateDoc(mrf, data)
@@ -220,7 +220,7 @@ export function AuthProvider({ children }) {
       senderId:`${CurrentUserID}`,
       reciverId:`${ActiveChatIdN}`,
       messageText:messageText,
-      time:new Date().toLocaleString(),
+      time:new Date().toLocaleString('en-US'),
       messageID:CurrentMessageID
   }
     const messageRef =collection(doc(db,"MessageList",`${CurrentUserID+ActiveChatIdN}`),'messages')
@@ -278,7 +278,6 @@ const [SetSign, setSetSign] = useState(false)
         onStateChange(user);
         LoadActiveChats(user.uid);
         LoadAllContacts(user.uid)
-       
     })
     return () => {
       unsubscribe();

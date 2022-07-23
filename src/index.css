@@ -27,3 +27,6 @@ body,html {
   position: fixed;
 
 }
+.react-emoji-picker--wrapper{
+  right: unset !important;
+}

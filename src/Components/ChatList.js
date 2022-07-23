@@ -3,15 +3,13 @@ import  {Link}  from "react-router-dom";
 
 const ChatHead=({Show,Name,last_message,friendKey,friendName,friendImage,setCount,Count})=>{
   return(
-    <Link to={`Let-s-Chatt-New/${friendKey}`} >
+    <Link to={`/${friendKey}`}  >
     <li  onClick={()=>{Show(`${friendKey}`,`${friendName}`,`${friendImage}`)}} className="list-group-item list-group-item-action">
         <div className="row">
           <div className="col-3 col-md-3 col-sm-2 mx-2">
-            <img className='friend-pic rounded-circle ' src={friendImage} alt="profile img" />
+            <img  className='friend-pic rounded-circle '  src={friendImage} alt="profile img" />
           </div>
-          <div className="col-7 col-md-7 col-sm-8 p-start-3 "
-          //  style={{paddingLeft:'40px'}}
-           >
+          <div className="col-7 col-md-7 col-sm-8 p-start-3 ">
             <div className="name">{Name}</div>
             <div className="under-name">{last_message}</div>
           </div>

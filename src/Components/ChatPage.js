@@ -1,34 +1,52 @@
 import { useState ,useEffect,useRef} from 'react'
 import styled from 'styled-components'
 import {ButtonGroup,DropdownButton,Dropdown,Form} from 'react-bootstrap';
-
-// import { auth,db } from "../firebase"
-// import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
+import InputEmoji from "react-input-emoji";
 import {useAuth} from '../Context/AuthContext'
 import { auth,db } from "../firebase"
 import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
 import  {Link,useNavigate}  from "react-router-dom";
+import sent from '../sound/sent.mp3'
+import recieve from '../sound/recieve.mp3'
+import sendicon from '../sound/sendicon.png'
+import bg from '../sound/bg2.png'
 
+// const Recieve=({messageText,time,img})=>{
+//   return(
+//     <div className="row">
+//           <div className="col-2 col-sm-1 col-md-1">
+//             <img className='chat-pic rounded-circle' src={img} alt="profile img" />
+//           </div>
+//           <div className="col-7 col-sm-7 col-sm-7">
+//               <p className='recieve'>
+//                 {messageText}
+//               </p>
+//               <span className='time float-right'>{time}</span>
+//             </div>
+//         </div>
+//   )
+// }
 const Recieve=({messageText,time,img})=>{
   return(
-    <div className="row">
+    <div className="row" style={{marginBottom:'30px'}}>
           <div className="col-2 col-sm-1 col-md-1">
             <img className='chat-pic rounded-circle' src={img} alt="profile img" />
           </div>
-          <div className="col-7 col-sm-7 col-sm-7">
-              <p className='recieve'>
+          <div className="col-7 col-sm-7 col-sm-7 sss">
+              <p className=''>
                 {messageText}
               </p>
-              <span className='time float-right'>{time}</span>
+              <span className='time '>{time}</span>
             </div>
         </div>
   )
 }
+
 const Sent=({messageText,time,img})=>{
   return(
-      <div className="row justify-content-end">
-          <div className="col-7 col-sm-7 col-sm-7 ">
-              <p className='sent float-end'>
+      <div className="row justify-content-end "style={{marginBottom:'30px'}}>
+          <div className="col-7 col-sm-7 col-sm-7 rrr ">
+              <p className=''>
               {messageText}
               </p>
               <span className='time-sent float-end align-bottom m-end-2'>{time}</span>
@@ -37,15 +55,29 @@ const Sent=({messageText,time,img})=>{
             <img className='chat-pic rounded-circle' src={img} alt="profile img" />
           </div>
         </div>
-
-
-
-
-
-
   )
 }
-const ChatPage = ({Count,CurrentMessageID,MessageSend,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
+
+
+
+
+// const Sent=({messageText,time,img})=>{
+//   return(
+//       <div className="row justify-content-end">
+//           <div className="col-7 col-sm-7 col-sm-7 ">
+//               <p className='sent float-end'>
+//               {messageText}
+//               </p>
+//               <span className='time-sent float-end align-bottom m-end-2'>{time}</span>
+//             </div>
+//             <div className="col-2 col-sm-1 col-md-1">
+//             <img className='chat-pic rounded-circle' src={img} alt="profile img" />
+//           </div>
+//         </div>
+//   )
+// }
+const ChatPage = ({Count,setCount,setunHide,CurrentMessageID,MessageSend,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
+ 
 const scrollRef = useRef();
 const [sentMessage, setSentMessage] = useState('');
 const [sendButton, setsendButton] = useState(false);
@@ -54,17 +86,25 @@ const onSub=async(e)=>{
     e.preventDefault()
     let message ={
         messageText:sentMessage,
-        time:new Date().toLocaleString()
+        time:new Date().toLocaleString('en-US')
     }
     if(sentMessage!==''){
-    await MessageSend(sentMessage,message.time)
+      new Audio(sent).play();
+ 
+    await MessageSend(sentMessage,message.time).then(setSentMessage(''))
     document.getElementById('txtMessage').value='';
     setSentMessage('');
     setsendButton(false);
+    scrollRef.current?.scrollIntoView({behaviour:"smooth"});
+
     }
     if(document.getElementById('txtMessage').value==='')
     setsendButton(false);
-
+   
+}
+const [ text, setText ] = useState('')
+function handleOnEnter(text) {
+  console.log("enter", text);
 }
 // const [Messages, setMessages] = useState([]);
 const [Seen, setSeen] = useState('XXX');
@@ -83,6 +123,7 @@ useEffect(() => {
       })
       console.log('Messages : ',M);
       setMessages(M);
+      // new Audio(recieve).play();
       scrollRef.current?.scrollIntoView({behaviour:"smooth"});
     })
   return () => unsub();
@@ -98,6 +139,14 @@ useEffect(() => {
 });
   scrollRef.current?.scrollIntoView({behavior: 'smooth'});
 }, [Messages]);
+
+
+useEffect(() => {
+  if(sentMessage!='') setsendButton(true); else setsendButton(false);
+}, [sentMessage])
+const CClick=()=>{
+  setShowChats(true); navigate('/'); setunHide(false);setCount(0);  
+}
 const navigate = useNavigate();
   return (
     <Chatpage>
@@ -105,7 +154,7 @@ const navigate = useNavigate();
       <div className="card-header">
         <div className="row" >
           <div className="col-1 col-sm-1 col-md-1 col-lg-1 d-md-none">
-            <i onClick={()=>{setShowChats(true); navigate('/Let-s-Chatt-New/#chatpage');}} className="fa fa-arrow-left mt-2"></i>
+            <i onClick={CClick} className="fa fa-arrow-left mt-2"></i>
           </div>
           {/* profile pic */}
           <div className="col-2 col-sm-2 col-md-2 col-lg-1">
@@ -140,7 +189,7 @@ const navigate = useNavigate();
           </div>
         </div>
       </div>
-      <div className="card-body " id='Messages' >
+      <div className="card-body " style={{ backgroundImage:`url(${bg})` }} id='Messages' >
         {
        (ActiveChatIdN===currentFriend.UserID) ? (
         (Messages.length!==0)?Messages.map((id,key)=>{
@@ -170,16 +219,26 @@ const navigate = useNavigate();
 
       <div className="card-footer">
         <form onSubmit={onSub} className="row">
-          <div className="col-2 col-md-1">
+          {/* <div className="col-2 col-md-1">
             <i className="far fa-grin fa-2x"></i>
-          </div>
-          <div className="col-8 col-md-10">
-            <textarea rows="2" cols="50" required autofocus id='txtMessage' 
+          </div> */}
+          <div className="col-10 col-md-11">
+          <InputEmoji
+          className='rr'
+      value={sentMessage}
+      onChange={setSentMessage}
+      placeholder="Type a message"
+    />
+            {/* <textarea rows="2" cols="50" required autoFocus id='txtMessage' 
              onChange={(e)=>{setSentMessage(e.target.value); setsendButton(true)}}  
               type="text" className='form-control form-rounded textareaElement' placeholder='Type here' name=""  />
+           */}
           </div>
-          <div  className="col-2 col-md-1">
-          <i onClick={onSub} className={sendButton?'fas fa-paper-plane fa-2x':'fas fa-microphone fa-2x'}></i>
+          <div  className="col-2 col-md-1  ps-2 pe-0 mx-auto mt-1 ">
+            {
+              sendButton?<img onClick={onSub} className='icon-color' src={sendicon} alt="" />: <i onClick={onSub} className='fas fa-microphone fa-2x icon-color'></i>
+            }
+          {/* <i onClick={onSub} className={sendButton?'fas fa-paper-plane fa-2x icon-color':'fas fa-microphone fa-2x icon-color'}></i> */}
           </div>
         </form>
       </div>
@@ -188,6 +247,77 @@ const navigate = useNavigate();
   )
 }
 const Chatpage = styled.div`
+.sss{
+  display: flex;
+  flex-direction: column;
+    max-width: max-content;
+    padding: 15px 10px;
+    transform: translateY(18px);
+    background: #ffffff;
+    border-top-left-radius:5px !important;
+    border-radius: 1rem;
+    padding: 10px 15px 5px 15px;
+    max-height: fit-content;
+    box-shadow: 0 0 9px 0px #59595961;
+    min-width: min-content;
+    width: 80%;
+
+}
+.sss p{
+  background: #ffffff;
+  margin: 0px;
+
+}
+.rrr{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+    max-width: max-content;
+    padding: 15px 10px;
+    transform: translateY(18px);
+    background: lightgreen;
+    border-top-right-radius:5px !important;
+    border-radius: 1rem;
+    padding: 10px 15px 5px 15px;
+    max-height: fit-content;
+    box-shadow: 0 0 9px 0px #59595961;
+    min-width: min-content;
+    width: 80%;
+}
+.rrr p{
+  background: lightgreen;
+  margin: 0px;
+
+}
+.card-body{
+  background-size: contain;
+  background-repeat: round;
+}
+.react-emoji{
+  flex-direction: row-reverse;
+}
+.react-emoji-picker--wrapper{
+  right: unset;
+}
+.react-input-emoji--container{
+  border-radius: 10px !important;
+}
+/* .react-input-emoji--button{
+    background: white !important;
+    padding: 7px !important;
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+    margin-right: -11px !important;
+    border: 0.1px solid #66666612 !important;
+} */
+.icon-color{
+  border: 1px solid #0fc144c2;
+    border-radius: 60%;
+    padding: 5px 10px;
+    background: #0fc144c2;
+    color: white;
+    margin: auto;
+}
 textarea { 
   min-height: 2.1em;
   max-height:fit-content;
@@ -230,21 +360,25 @@ textarea {
     height: 30px;
     width: 30px;
   }
-  .recieve{
-    background: lightgreen;
-    border-radius: 1rem;
-    padding: 10px 15px;
-    display: inline-block;
-    max-width: 100%;
-    max-height: fit-content;
-  }
-  .sent{
+  .recieve{    
     background: whitesmoke;
+    border-top-left-radius:5px !important;
     border-radius: 1rem;
     padding: 10px 15px;
     display: inline-block;
     max-width: 100%;
     max-height: fit-content;
+    transform: translateY(10px);
+  }
+  .sent{    
+    background: lightgreen;
+    border-top-right-radius:5px !important;
+    border-radius: 1rem;
+    padding: 10px 15px;
+    display: inline-block;
+    max-width: 100%;
+    max-height: fit-content;
+    transform: translateY(10px);
   }
   .time{
     font-size: 10px;

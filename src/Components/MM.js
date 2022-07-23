@@ -13,18 +13,24 @@ import {
   Route,
 } from "react-router-dom";
 import PrivateRoute from './PrivateRoute';
-const Main = () => {
+const MM = () => {
   const [showchats, setShowChats] = useState(true)
   const [addclass, setaddclass] = useState(true)
   const [Count, setCount] = useState(0)
   const AddClass=()=>{
     setaddclass(false)
   }
+
+
+  const [unHide, setunHide] = useState(false)
   const Show=async(friendKey,friendName,friendImage)=>{
+    setunHide(true);
+    setCount(1)
     handleClose();
     setShowChats(false);
     setaddclass(true);
     await AddFriend(friendKey,friendName,friendImage)
+
   }
 // //////////////////////////////////////////////////////////// login
   const {setlog,LastSeen,CurrentMessageID,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
@@ -68,30 +74,29 @@ const Main = () => {
       <span className='top'></span>
       <div  className="chatbox container-fluid bg-white shadow-lg rounded">
         <div className="row h-100">
-          <LeftPanel currentActiveUser={currentActiveUser} addclass={addclass} currentUser={currentUser} 
-            handleShow ={handleShow} show={show} handleGoogleSignIn ={handleGoogleSignIn} handleLogout ={handleLogout}
-             handleClose ={handleClose} Show ={Show} ChatList ={ChatList} setCount ={setCount} Count ={Count}/>
-          <div id='side-2' className={addclass?'col-md-8 ps-md-0':'col-md-8 ps-md-0 d-none'}>
-          <Routes>
-            { showchats ? 
-            <Route exact path="/Let-s-Chatt-New" element={<Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />}></Route>
-            :<Route path={`Let-s-Chatt-New/${ActiveChatIdN}`} element={<PrivateRoute><ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
-            MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
-             currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} 
-             setShowChats={setShowChats}/></PrivateRoute>}></Route>
-            }
-            <Route path='/Let-s-Chatt-New' element={<PrivateRoute><LeftPanel/></PrivateRoute>}></Route>
-          </Routes> 
-          {/* {
-            showchats ? 
-           <></> // <Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />
-            :
-            <ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
-            MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
-             currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} 
-             setShowChats={setShowChats}/>
-          }  */}
-          </div>
+        {
+            (auth.currentUser!=null)?<><div id='side-1 '
+            // className={addclass?'col-md-4 pe-md-0 d-none d-md-block':'col-md-4 pe-md-0'} 
+            className={`col-md-4 pe-md-0 ${unHide?'d-none d-md-block':'d-block'}`}
+            > 
+              <LeftPanel currentActiveUser={currentActiveUser} addclass={addclass} currentUser={currentUser} 
+                  handleShow ={handleShow} show={show} handleGoogleSignIn ={handleGoogleSignIn} handleLogout ={handleLogout}
+                  handleClose ={handleClose} Show ={Show} ChatList ={ChatList} setCount ={setCount} Count ={Count}/>
+              </div>
+            <div id='side-2'
+            //  className={addclass?'col-md-8 ps-md-0':'col-md-8 ps-md-0 d-none'}
+             className={`col-md-8 ps-md-0  ${unHide?'d-block':'d-none d-md-block'}`}
+             >
+              {
+                (Count!==0)?<Routes><Route path={`/${ActiveChatIdN}`} element={<PrivateRoute><ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
+                MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
+                 currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} setunHide={setunHide}
+                 setCount={setCount}    setShowChats={setShowChats}/></PrivateRoute>}>
+                  </Route></Routes>:<Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />
+              }
+            </div></>
+             :<Firstchat ShowSignOut={ShowSignOut} handleLogout={handleLogout} handleGoogleSignIn={handleGoogleSignIn} AddClass={AddClass} />
+        }
       </div>
       </div>
     </MainContainer>
@@ -99,10 +104,14 @@ const Main = () => {
   )
 }
 const MainContainer = styled.div`
+
   background: linear-gradient(180deg,#dddbd1,#d2dbdc);
   height: 100vh;
   width: 100%;
   position: fixed;
+  .react-emoji-picker--wrapper{
+  right: unset;
+}
   a{
     text-decoration: unset;
 }
@@ -126,6 +135,7 @@ const MainContainer = styled.div`
   .friend-pic{
     height: 50px;
     width: 50px;
+    /* border: 3px solid #0fc144c2; */
   }
   .form-rounded{
     border-radius: 1rem;
@@ -185,4 +195,4 @@ const MainContainer = styled.div`
 }
 `
 
-export default Main
+export default MM

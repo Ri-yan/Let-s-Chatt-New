@@ -9,3 +9,6 @@ a{
 *::-webkit-scrollbar{
     display: none;
 }
+.react-emoji-picker--wrapper{
+    right: unset !important;
+  }

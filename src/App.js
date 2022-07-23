@@ -6,6 +6,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
+import MM from './Components/MM';
 function App() {
   return (
   //   <AuthProvider> 
@@ -20,7 +21,8 @@ function App() {
   //   </AuthProvider>
     <AuthProvider> 
     <div className="App">
-    <Main/>
+    {/* <Main/> */}
+    <MM/>
    </div> 
   </AuthProvider>
   );
