@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script>
+      history.pushState(null,null,location.href);
+      window.onpopstate=function(){
+        history.go(1);
+      }
+    </script>
     <script src="https://kit.fontawesome.com/38a57dc0f5.js" crossorigin="anonymous"></script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />

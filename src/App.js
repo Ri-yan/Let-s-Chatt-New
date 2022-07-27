@@ -1,5 +1,5 @@
 import './App.css';
-import {Firstchat, Main} from './Components';
+import {Firstchat} from './Components';
 import { AuthProvider } from './Context/AuthContext';
 import {
   BrowserRouter,

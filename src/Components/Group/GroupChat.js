@@ -1,36 +1,44 @@
 import { useState ,useEffect,useRef} from 'react'
 import styled from 'styled-components'
+import {useAuth} from '../../Context/AuthContext'
 import {ButtonGroup,DropdownButton,Dropdown,Form} from 'react-bootstrap';
 import InputEmoji from "react-input-emoji";
-import {useAuth} from '../Context/AuthContext'
-import { auth,db } from "../firebase"
+import { auth,db } from "../../firebase"
 import { addDoc, collection,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
 import  {Link,useNavigate}  from "react-router-dom";
-import sent from '../sound/sent.mp3'
-import recieve from '../sound/recieve.mp3'
-import sendicon from '../sound/sendicon.png'
-import bg from '../sound/bg2.png'
-
-// const Recieve=({messageText,time,img})=>{
-//   return(
-//     <div className="row">
-//           <div className="col-2 col-sm-1 col-md-1">
-//             <img className='chat-pic rounded-circle' src={img} alt="profile img" />
-//           </div>
-//           <div className="col-7 col-sm-7 col-sm-7">
-//               <p className='recieve'>
-//                 {messageText}
-//               </p>
-//               <span className='time float-right'>{time}</span>
-//             </div>
-//         </div>
-//   )
-// }
-const Recieve=({messageText,time,img})=>{
+import sent from '../../sound/sent.mp3'
+import recieve from '../../sound/recieve.mp3'
+import sendicon from '../../sound/sendicon.png'
+import bg from '../../sound/bg2.png'
+import grouppic from './grouppic.png'
+const Recieve=({messageText,time,img,senderId,name,photo})=>{
+  // const [reciveMessageDetails, setreciveMessageDetails] = useState({
+  //   name:'sender',
+  //   photoURL:`${grouppic}`
+  // })
+  //     const shouldLog = useRef(true)
+  //     useEffect(() => {
+  //       if(shouldLog.current){
+  //         shouldLog.current=false;
+  //       const unsub=()=>getDocs(collection(db,'users'))
+  //       .then((snaphot)=>{
+  //         snaphot.docs.forEach((user)=>{
+  //           if(senderId===user.data().UserID){
+  //             setreciveMessageDetails({name:`${user.data().name}`,photoURL:`${user.data().photoURL}`})
+  //           }
+  //         })
+  //       }
+  //       )
+  //       .catch(err=>{
+  //         console.log(err.message)
+  //       })
+  //       return () => unsub();
+  //     }
+  //   }, [time])
   return(
     <div className="row" style={{marginBottom:'30px'}}>
           <div className="col-2 col-sm-1 col-md-1">
-            <img className='chat-pic rounded-circle' src={img} alt="profile img" />
+            <img className='chat-pic rounded-circle' src={photo} alt="profile img" title={name} />
           </div>
           <div className="col-7 col-sm-7 col-sm-7 sss">
               <p className=''>
@@ -58,26 +66,8 @@ const Sent=({messageText,time,img})=>{
   )
 }
 
-
-
-
-// const Sent=({messageText,time,img})=>{
-//   return(
-//       <div className="row justify-content-end">
-//           <div className="col-7 col-sm-7 col-sm-7 ">
-//               <p className='sent float-end'>
-//               {messageText}
-//               </p>
-//               <span className='time-sent float-end align-bottom m-end-2'>{time}</span>
-//             </div>
-//             <div className="col-2 col-sm-1 col-md-1">
-//             <img className='chat-pic rounded-circle' src={img} alt="profile img" />
-//           </div>
-//         </div>
-//   )
-// }
-const ChatPage = ({Count,setCount,setunHide,CurrentMessageID,MessageSend,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
- 
+const GroupChat = ({CurrentgroupKey,Count,setCount,setunHide,CurrentMessageID,MessageSend,ActiveChatIdN,currentUser,CurrentUserID,currentFriend,setShowChats,Show,AddClass,currentChat}) => {
+ const {SendGroupMessage,setGMessages,GMessages}=useAuth();
 const scrollRef = useRef();
 const [sentMessage, setSentMessage] = useState('');
 const [sendButton, setsendButton] = useState(false);
@@ -86,44 +76,37 @@ const onSub=async(e)=>{
     e.preventDefault()
     let message ={
         messageText:sentMessage,
-        time:new Date().toLocaleString('en-US')
+        time:new Date().toLocaleString('en-US'),
+        
     }
     if(sentMessage!==''){
       new Audio(sent).play();
- 
-    await MessageSend(sentMessage,message.time).then(setSentMessage(''))
-    document.getElementById('txtMessage').value='';
+    await SendGroupMessage(sentMessage,CurrentgroupKey.name,`${currentUser.displayName}`,`${currentUser.photoURL}`).then(setSentMessage(''))
+    // document.getElementById('GtxtMessage').value='';
     setSentMessage('');
     setsendButton(false);
     scrollRef.current?.scrollIntoView({behaviour:"smooth"});
 
     }
-    if(document.getElementById('txtMessage').value==='')
-    setsendButton(false);
+    // if(document.getElementById('GtxtMessage').value==='')
+    // setsendButton(false);
    
 }
-const [ text, setText ] = useState('')
-function handleOnEnter(text) {
-  console.log("enter", text);
-}
-// const [Messages, setMessages] = useState([]);
+
 const [Seen, setSeen] = useState('XXX');
 const shouldLog = useRef(true)
 useEffect(() => {
   if(shouldLog.current){
     shouldLog.current=false;
-    console.log('currentFriend messageid',currentFriend.messageID);
-    const messageRef =query(collection(doc(db,"MessageList",`${currentUser.uid+currentFriend.UserID}`),'messages'),orderBy('time'))
+    const messageRef =query(collection(doc(db,"GroupMessageList",`${CurrentgroupKey.key}`),'messages'),orderBy('time'))
     const unsub=()=>onSnapshot(messageRef, (snapshots) => {  
     const M=[];
     snapshots.docs.forEach((user)=>{
       // console.log(user.data());
       M.push(user.data());
-      setMessages([])
+      setGMessages([])
       })
-      // console.log('Messages : ',M);
-      setMessages(M);
-      // new Audio(recieve).play();
+      setGMessages(M);
       scrollRef.current?.scrollIntoView({behaviour:"smooth"});
     })
   return () => unsub();
@@ -149,7 +132,7 @@ const CClick=()=>{
 }
 const navigate = useNavigate();
   return (
-    <Chatpage>
+    <Groupchat>
     <div className="card" >
       <div className="card-header">
         <div className="row" >
@@ -158,12 +141,12 @@ const navigate = useNavigate();
           </div>
           {/* profile pic */}
           <div className="col-2 col-sm-2 col-md-2 col-lg-1">
-            <img onClick={()=>AddClass(false)} className='rounded-circle profile-pic' src={currentFriend.photoURL} alt="profile img" />
+            <img onClick={()=>AddClass(false)} className='rounded-circle profile-pic' src={CurrentgroupKey.image} alt="profile img" />
           </div>
           {/* name and seen */}
           <div className="col-7 col-sm-5 col-md-7 col-lg-9">
-            <div className="name">{currentFriend.name}</div>
-            <div className="under-name">{Seen}</div>
+            <div className="name">{CurrentgroupKey.name}</div>
+            <div className="under-name">members</div>
           </div>
           {/* settings */}
           <div className="col-2 col-sm-4 col-md-3 col-lg-2 float-right" style={{display:'flex',alignItems:'baseline'}}>
@@ -191,8 +174,8 @@ const navigate = useNavigate();
       </div>
       <div className="card-body " style={{ backgroundImage:`url(${bg})` }} id='Messages' >
         {
-       (ActiveChatIdN===currentFriend.UserID) ? (
-        (Messages.length!==0)?Messages.map((id,key)=>{
+       (CurrentgroupKey) ? (
+        (GMessages.length!==0)?GMessages.map((id,key)=>{
           if(id.senderId===CurrentUserID){
             return(
               <Sent key={key} messageText={id.messageText} time={id.time} img={currentUser.photoURL}/>
@@ -200,7 +183,7 @@ const navigate = useNavigate();
           }
           else{
             return(
-              <Recieve key={key} messageText={id.messageText} time={id.time} img={currentFriend.photoURL}/>
+              <Recieve key={key} name={id.name} photo={id.photoURL} senderId={id.senderId} messageText={id.messageText} time={id.time} img={currentFriend.photoURL}/>
             )
           }
         }
@@ -225,12 +208,12 @@ const navigate = useNavigate();
           <div className="col-10 col-md-11">
           <InputEmoji
           className='rr'
-          id='txtMessage' 
+          id={'GtxtMessage'}
       value={sentMessage}
       onChange={setSentMessage}
       placeholder="Type a message"
     />
-            {/* <textarea rows="2" cols="50" required autoFocus id='txtMessage' 
+            {/* <textarea rows="2" cols="50" required autoFocus id='GtxtMessage' 
              onChange={(e)=>{setSentMessage(e.target.value); setsendButton(true)}}  
               type="text" className='form-control form-rounded textareaElement' placeholder='Type here' name=""  />
            */}
@@ -244,10 +227,10 @@ const navigate = useNavigate();
         </form>
       </div>
       </div>
-    </Chatpage>
+    </Groupchat>
   )
 }
-const Chatpage = styled.div`
+const Groupchat = styled.div`
 .sss{
   display: flex;
   flex-direction: column;
@@ -414,4 +397,4 @@ textarea {
   }
 }
   `
-export default ChatPage
+export default GroupChat

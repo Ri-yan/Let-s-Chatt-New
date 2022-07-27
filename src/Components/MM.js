@@ -5,7 +5,7 @@ import { ChatList, Firstchat,ChatPage } from '.'
 import LeftPanel from './LeftPanel';
 import  {useNavigate}  from "react-router-dom";
 import { auth,db } from "../firebase"
-import { addDoc, collection,updateDoc,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
+import { addDoc,collection,updateDoc,getDocs,getDoc,doc,setDoc,onSnapshot,addDocs,query,collectionGroup, where,orderBy} from "firebase/firestore";
 
 import {
   BrowserRouter,
@@ -13,9 +13,11 @@ import {
   Route,
 } from "react-router-dom";
 import PrivateRoute from './PrivateRoute';
+import GroupChat from './Group/GroupChat';
 const MM = () => {
   const [showchats, setShowChats] = useState(true)
   const [addclass, setaddclass] = useState(true)
+  const [CurrentgroupKey, setCurrentgroupKey] = useState([])
   const [Count, setCount] = useState(0)
   const AddClass=()=>{
     setaddclass(false)
@@ -30,10 +32,27 @@ const MM = () => {
     setShowChats(false);
     setaddclass(true);
     await AddFriend(friendKey,friendName,friendImage)
-
+  }
+  const GShow=async(friendKey,friendName,friendImage)=>{
+    setShowChats(false);
+    setunHide(true);
+    setCount(1)
+    handleClose();
+    setShowChats(false);
+    setaddclass(true);
+    console.log("idddddd",friendKey.split(" ").join(""))
+    var c={
+      key:friendKey,
+      name:friendName,
+      image:friendImage,
+      id:friendKey.split(" ").join("")
+    }
+    setCurrentgroupKey(c);
+    await GroupLoadMessages(friendKey);
+    AddNewGroup(friendKey,friendName)
   }
 // //////////////////////////////////////////////////////////// login
-  const {setlog,LastSeen,CurrentMessageID,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
+  const {AddNewGroup,GroupLoadMessages,setlog,groupheads,LastSeen,CurrentMessageID,LoadFriendList,friendsLoad,chatHeads,MessageSend,currentFriend,CurrentUserID,currentChat,Messages,ActiveChatIdN,LoadChatMessages,AddFriend,currentUser,ShowSignIn,ShowSignOut,logout,currentActiveUser,friendlist,setfriendsLoading,friendsLoading,setFriendList,LoadAllUsers } = useAuth()
   const [error, setError] = useState("")
   const {googleSignIn} = useAuth()
 
@@ -79,7 +98,7 @@ const MM = () => {
             // className={addclass?'col-md-4 pe-md-0 d-none d-md-block':'col-md-4 pe-md-0'} 
             className={`col-md-4 pe-md-0 ${unHide?'d-none d-md-block':'d-block'}`}
             > 
-              <LeftPanel currentActiveUser={currentActiveUser} addclass={addclass} currentUser={currentUser} 
+              <LeftPanel GShow={GShow} groupheads={groupheads} currentActiveUser={currentActiveUser} addclass={addclass} currentUser={currentUser} 
                   handleShow ={handleShow} show={show} handleGoogleSignIn ={handleGoogleSignIn} handleLogout ={handleLogout}
                   handleClose ={handleClose} Show ={Show} ChatList ={ChatList} setCount ={setCount} Count ={Count}/>
               </div>
@@ -88,7 +107,12 @@ const MM = () => {
              className={`col-md-8 ps-md-0  ${unHide?'d-block':'d-none d-md-block'}`}
              >
               {
-                (Count!==0)?<Routes><Route path={`/${ActiveChatIdN}`} element={<PrivateRoute><ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
+                (Count!==0)?<Routes>
+                  <Route path={`/group/${CurrentgroupKey.id}`} element={<PrivateRoute><GroupChat CurrentgroupKey={CurrentgroupKey} Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
+                MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
+                 currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} setunHide={setunHide}
+                 setCount={setCount}    setShowChats={setShowChats}/></PrivateRoute>}></Route>
+                  <Route path={`/${ActiveChatIdN}`} element={<PrivateRoute><ChatPage Count={Count} Messages={Messages} LoadChatMessages={LoadChatMessages} CurrentMessageID={CurrentMessageID} 
                 MessageSend={MessageSend} ActiveChatIdN={ActiveChatIdN} currentUser={currentUser} CurrentUserID={CurrentUserID}
                  currentFriend={currentFriend} currentChat={currentChat} AddClass={AddClass} Show={Show} setunHide={setunHide}
                  setCount={setCount}    setShowChats={setShowChats}/></PrivateRoute>}>

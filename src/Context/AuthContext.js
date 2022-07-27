@@ -173,9 +173,6 @@ export function AuthProvider({ children }) {
     setActiveChatIdN(ActiveChat);
     setCurrentMessageID(MessageID);
     LoadChat(CurrentUserID,ActiveChat,MessageID)
-    // LoadChatMessages(CurrentUserID,ActiveChat,MessageID);
-    // console.log('Active Chat Head',ActiveChat);
-    // console.log('MessageID ',MessageID)
   }
 
 // For Loading All Contacts
@@ -214,6 +211,7 @@ export function AuthProvider({ children }) {
       setfriendsLoad(false)    
   });
   }
+
 //For Sending Messages
   async function MessageSend(messageText,time){
     let message ={
@@ -246,7 +244,7 @@ const [Messages, setMessages] = useState([]);
       onSnapshot(messageRef, (snapshots) => {  
         let M=[];
         snapshots.docs.forEach((user)=>{
-          console.log(user.data());
+          // console.log(user.data());
           M.push(user.data());
           })
           setMessages(M);
@@ -261,7 +259,114 @@ const [Messages, setMessages] = useState([]);
 
 
 
+  const AddNewGroup=async(groupname,groupmembers)=>{
+    let flag = true;
+    console.log(groupname,groupmembers);
+    // const FRef =collection(doc(db, "Groups",CurrentUserID),'UserGroups')
+    // await addDoc(FRef,{
+    //   groupName:`${groupname}`,
+    //   groupMembers:`${groupmembers}`,
+    //   admin:'true'
+    // })
+    //   .then(console.log('Group added'))
+    //   .catch(err=>console.log(err.message))
+  
+    //   groupmembers.forEach((user,i)=>{
+    //     addDoc(collection(doc(db, "Groups",`${user}`),'UserGroups'),{
+    //       groupName:`${groupname}`,
+    //       groupMembers:`${groupmembers}`,
+    //       admin:'false'
+    //     }).then(console.log('Group added'))
+    //     .catch(err=>console.log(err.message))
+        
+    //   })
 
+
+
+
+      await getDocs(collection(doc(db, "Groups",CurrentUserID),'UserGroups'))
+        .then((snaphot)=>{
+          snaphot.docs.forEach((user)=>{
+            if((user.data().groupName===groupname))
+            {
+              flag=false;
+            }
+          })
+        }
+        )
+        .catch(err=>{
+          console.log(err.message)
+        })
+      if(flag){
+        let data = {groupName:`${groupname}`,
+              groupMembers:[],
+              admin:'false',
+              id:`${groupname.split(" ").join("")}`
+            }
+              groupmembers.forEach(i=>{data.groupMembers.push(i)})
+              data.groupMembers.push(CurrentUserID)
+        const FRef =collection(doc(db, "Groups",CurrentUserID),'UserGroups')
+        await addDoc(FRef,data)
+          .then(console.log('Group added'))
+          .catch(err=>console.log(err.message))
+      
+          groupmembers.forEach((user,i)=>{
+            addDoc(collection(doc(db, "Groups",`${user}`),'UserGroups'),data).then(console.log('Group added'))
+            .catch(err=>console.log(err.message))
+            
+          })
+      }    
+       else{
+          GroupLoadMessages(groupname);
+        console.log('already GroupList');
+      }
+      
+  }
+  
+  const SendGroupMessage=async(GmessageText,groupName,name,photo)=>{
+      let message ={
+        senderId:`${CurrentUserID}`,
+        messageText:GmessageText,
+        time:new Date().toLocaleString('en-US'),
+        messageID:CurrentMessageID,
+        name:`${name}`,
+        photoURL:`${photo}`
+    }
+      const messageRef =collection(doc(db,"GroupMessageList",`${groupName}`),'messages')
+      await addDoc(messageRef,message)
+        .then(console.log('message added'))
+        .catch(err=>console.log(err.message))
+    }
+
+  const [groupheads, setgroupheads] = useState([])
+  const GroupLoad =(id)=>{
+    onSnapshot(collection(doc(db, "Groups",`${id}`),'UserGroups'),(snaphot)=>{
+      let G =[];
+      snaphot.docs.forEach((i)=>{
+        // console.log(i.data());
+        G.push(i.data())
+      })
+      setgroupheads(G)
+    })
+  }
+  const [GMessages, setGMessages] = useState([]);
+  const GroupLoadMessages=async(groupname)=>{
+    try {
+      const messageRef =query(collection(doc(db,"GroupMessageList",`${groupname}`),'messages'),orderBy('time'))
+      onSnapshot(messageRef, (snapshots) => {  
+        let M=[];
+        snapshots.docs.forEach((user)=>{
+          // console.log(user.data());
+          M.push(user.data());
+          })
+          setGMessages(M);
+        }
+      )
+    } catch (err) {
+      console.log(err.message)
+    }
+    
+  }
 
 
 const [SetSign, setSetSign] = useState(false)
@@ -277,7 +382,9 @@ const [SetSign, setSetSign] = useState(false)
         setLoading(false);
         onStateChange(user);
         LoadActiveChats(user.uid);
+        GroupLoad(user.uid)
         LoadAllContacts(user.uid)
+        
     })
     return () => {
       unsubscribe();
@@ -304,7 +411,11 @@ const [SetSign, setSetSign] = useState(false)
     ActiveChatIdN,
     currentChat,
     CurrentUserID,
-    CurrentMessageID,Messages, setMessages, LastSeen,setlog
+    CurrentMessageID,Messages,
+     setMessages,
+      LastSeen,setlog,
+      AddNewGroup,groupheads
+      ,GroupLoad,GroupLoadMessages,SendGroupMessage,setGMessages,GMessages
 
   }
   return (
